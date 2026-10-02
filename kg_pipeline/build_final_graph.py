@@ -26,6 +26,14 @@ Design decisions made in conversation (2026-09-28):
   (CALLS, HAS_CODE, HAS_CODE_SLICE, ASSOCIATED_WITH_COMMIT, IN_PROJECT,
   HAS_API_TOKEN, HAS_GUIDELINE, MITIGATES, CLASSIFIED_AS, OBSERVED_EXAMPLE_OF,
   DESCRIBES_WEAKNESS from LanguageSpecificKnowledge) keeps its original name.
+
+Normalisation decisions (2026-10-02):
+- Language labels are canonicalised once, here, for every node and relationship `language`
+  property: the rescue dataset's "py" becomes "python". "c" and "cpp" stay distinct labels.
+- Every FunctionVersion gets an explicit `role`. The DiverseVul functions were kept
+  vulnerable-only by design, so they carry no role in the source; they are assigned
+  role="vulnerable" (role_status records that it was assigned, not read from the source)
+  and pair_available=False. FunctionVersions on a FIXES edge get pair_available=True.
 """
 
 import hashlib
@@ -52,6 +60,9 @@ REL_RENAME = {
 
 EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
 
+# Spelling variants of the same language. c/cpp are deliberately not merged.
+LANGUAGE_ALIASES = {"py": "python"}
+
 
 def sha256(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
@@ -74,6 +85,8 @@ def flatten_props(entity_or_rel: dict, skip: set) -> dict:
         if k in skip:
             continue
         fv = flatten_value(v)
+        if k == "language" and isinstance(fv, str):
+            fv = LANGUAGE_ALIASES.get(fv.lower(), fv.lower())
         if fv is not None:
             props[k] = fv
     return props
@@ -185,6 +198,9 @@ def build():
             "props": props,
         })
 
+    paired_ids = {r["source"] for r in final_relationships if r["type"] == "FIXES"} | {
+        r["target"] for r in final_relationships if r["type"] == "FIXES"}
+
     # Nodes: every entity except KnowledgeExample (folded away).
     nodes = []
     functionality_nodes = {}  # func_id -> {"id": ..., "text": ...}
@@ -198,6 +214,11 @@ def build():
         if etype == "FunctionVersion":
             skip = skip | {"functionality", "functionality_source"}
         props = flatten_props(e, skip=skip)
+        if etype == "FunctionVersion":
+            props["pair_available"] = eid in paired_ids
+            if not props.get("role"):
+                props["role"] = "vulnerable"
+                props["role_status"] = "assigned_vulnerable_only_dataset"
         nodes.append({"label": label, "id": eid, "props": props})
 
         if etype == "FunctionVersion" and e.get("functionality"):
