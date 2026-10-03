@@ -4,19 +4,9 @@ import argparse
 import json
 from dataclasses import asdict
 
-from .compare import annotate_api_overlap, rank_cwes
-from .context import attach_cwe_context
+from .api import retrieve
 from .db import get_driver
-from .search import Embedder, search_functionality
-
-
-def retrieve(driver, embedder, query, language=None, expected_apis=(), k=5, top_cwes=5):
-    """Functionality search -> local API comparison -> ranked CWEs with context."""
-    hits = search_functionality(driver, embedder, query, language, k)
-    annotate_api_overlap(hits, list(expected_apis))
-    candidates = rank_cwes(hits, top_cwes)
-    attach_cwe_context(driver, candidates)
-    return hits, candidates
+from .search import Embedder
 
 
 def main() -> None:
