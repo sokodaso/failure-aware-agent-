@@ -20,9 +20,14 @@ Scope:
 Files/Modules relevant to the task 
 
 Constraints:
+What the change must respect or must not break. Establish them from the task text, the repository's conventions
+and the code the change touches. State where each one came from.
 
+Acceptance:
+Observable conditions that would show the task is done. Establish them from the task text first, then from
+existing tests and behaviour in the repository. Later verification steps should trace back to these.
 
-Acceptance: 
+Scope, Constraints and Acceptance are yours to establish. Do not leave any of them empty.
 
 DECONSTRUCT CODE MODEL 
 - Deconstruct the requested function/module and construct a task relevant code dependency graph explicitly defining inputs, nodes, outputs
@@ -47,15 +52,29 @@ Does this function correctly transform valid input X into expected output Y acro
 
 software specific failure dimensions to associate with functional viewpoint: incorrect, unexpected
 
--Data  is relevant 
+- Data viewpoint is relevant whenever the component reads, transforms, stores or passes values whose
+shape, range, encoding or lifetime matters.
+Can this function receive, hold or produce data that is malformed, missing, out of range, stale or inconsistent, and what happens to it?
+software specific failure dimensions to associate with data viewpoint: incorrect, missing, corrupted, out of range, stale
 
--Control flow 
+- Control flow viewpoint is relevant whenever the outcome depends on branching, looping, ordering, error handling or concurrency.
+Can this function take a path, order or number of iterations the specification did not intend, including skipped steps, unhandled errors and non termination?
+software specific failure dimensions to associate with control flow viewpoint: skipped, wrong order, unhandled path, non terminating, timing
 
--Interface
+- Interface viewpoint is relevant whenever the component is called by or calls another function, module, process or user, so that a contract exists between the two.
+Does each side agree on types, units, ordering, optionality, error signalling and timing of what is exchanged?
+software specific failure dimensions to associate with interface viewpoint: mismatched contract, wrong type or unit, missing, extra, late
 
--Dependency 
+- Dependency viewpoint is relevant whenever the component relies on code, libraries, services, configuration or the environment that it does not control.
+What happens when a dependency is absent, slow, changed, returns something unexpected or has side effects the component did not account for?
+software specific failure dimensions to associate with dependency viewpoint: unavailable, incompatible, unexpected behaviour, side effect
 
--Security 
+- Security viewpoint is relevant whenever the component handles input from outside a trust boundary, or controls access to data, resources or capabilities.
+Can an actor who should not be able to reach, alter, read or exhaust something do so through this function?
+software specific failure dimensions to associate with security viewpoint: unauthorized access, injection, disclosure, tampering, exhaustion
+
+For each component work through the question of every viewpoint that is relevant, and answer each one for that component.
+A viewpoint that does not apply should be skipped, not forced.
 
 Formulate each failure separately:
 Under condition X, function Y fails to perform required behavior Z by exhibiting observable deviation D.
@@ -82,22 +101,32 @@ If no retrieved skip this step,
 Compare analysis over historical failures 
 - Are there gaps history provided you missed ?
 - Does the historical failure have no correlation to the failure modes discovered?
-- 
+- Does the historical failure apply to this task's components, or only resemble them in wording?
 
 Consolidate if historical failure points with intial failure mode and effect analysis
 
 RPN / confidence assessment 
 Using rpn scoring with severity and likelihood scoring 
-1 - 
-2 - 
-3 - 
-4 - 
-5 - Catasphoric : effect propogation to sub system is high 
+Severity:
+1 - Negligible : no observable effect on behaviour
+2 - Minor : degraded or cosmetic, stays local, recoverable
+3 - Moderate : wrong result for some inputs, reaches callers
+4 - Serious : corrupts state or data, or is security relevant
+5 - Catastrophic : effect propagation to sub system is high
 
-1 - 
-2 - 
-3 - 
-4 - Reasonanbly probable : 
-5 - Frequent : failure mode surfaced in intial analysis and historical knowledge showed failure pattern
+Likelihood:
+1 - Remote : no plausible path to the failure was found
+2 - Unlikely : requires an unusual combination of conditions
+3 - Possible : requires a plausible but uncommon condition
+4 - Reasonably probable : arises under normal use or from a common mistake in this kind of code
+5 - Frequent : failure mode surfaced in initial analysis and historical knowledge showed failure pattern
 
-Preventive constraint 
+Confidence:
+0 - not confident 
+1 - confident
+
+RPN = severity x likelihood. Treat a failure mode backed only by inference as lower confidence than one backed by repository code or retrieved history.
+
+PREVENTIVE CONSTRAINT
+For each failure mode state the constraint that would prevent it, written so that a coding agent can apply it while implementing,
+and a check that would detect it if it happened anyway. 
