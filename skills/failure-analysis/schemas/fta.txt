@@ -1,0 +1,30 @@
+SFTA - Fault Tree Analysis 
+
+PURPOSE
+
+WHEN TO USE SFTA 
+FTA ia performed only on a selected high priority failure events: top 5 rpn scores (high)
+
+SFTA 
+
+For each intermediate event :
+- Identify 2-4 immediate causes 
+- Determine AND/OR relationship
+- Classify cause as Timing, Value, Omission and N/A
+- Determine whether the cause is a basic event
+- Otherwise recursively decompose
+
+
+FTA LIMIT
+
+MAX_DEPTH = 3
+MAX_CHILDREN = 4
+MAX_NODES = 15
+
+Use breadth-first Decomposition
+
+Stop when:
+- cause is actionable or at root-level 
+- maximum depth is reached 
+- maximum node budget is reachable 
+- completeness review determines further decomposition is unlikely to add useful information 

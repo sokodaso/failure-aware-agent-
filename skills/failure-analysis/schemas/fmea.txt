@@ -1,0 +1,103 @@
+FMEA - SOFTWARE FAILURE MODE EFFECT AND ANALYSIS 
+
+PURPOSE 
+
+Software Failure Mode and Effects Analysis (sFMEA) is a bottom-up method for identifying how a software function or component can fail, 
+what effects result, and  what controls can prevent or detect it.
+
+sFMEA is used by coding agent to reason about potential failures 
+
+sFMEA does not establish that a failure exists. It produces failure hypotheses that should be verified against code, tests or other evidence
+
+Follow these steps given in other
+TASK DECOMPOSITION
+
+Using the your understanding from the user's requested task establish:
+- What behaviour is requested?
+- What bug or failure being addressed?
+
+Scope:
+Files/Modules relevant to the task 
+
+Constraints:
+
+
+Acceptance: 
+
+DECONSTRUCT CODE MODEL 
+- Deconstruct the requested function/module and construct a task relevant code dependency graph explicitly defining inputs, nodes, outputs
+- Identify the failure boundaries
+
+Decompose until each analysis item has:
+- One clear function
+- Observable inputs and outputs
+- A meaningful failure boundary
+- Identifiable upstream and downstream dependencies
+
+VIEWPOINT MAPPING
+
+Goal : Using sFMEA viewpoints identify potential failure modes within the function/component:
+
+sFMEA viewpoints refers to the specific perspective or lens through which the dependency graph is analyzed.When reasoning about relevance to viewpoint
+this helps guide reasoning
+The following are sFMEA  dimensions:
+- Functional viewpoint is relevant whenever the evaluation goal is verifying whenever a software component 
+fufills its specified algorithmic and business rules, mathematical models  functional requirements 
+Does this function correctly transform valid input X into expected output Y across all standard, boundary, and extreme domain conditions according to the specification?
+
+software specific failure dimensions to associate with functional viewpoint: incorrect, unexpected
+
+-Data  is relevant 
+
+-Control flow 
+
+-Interface
+
+-Dependency 
+
+-Security 
+
+Formulate each failure separately:
+Under condition X, function Y fails to perform required behavior Z by exhibiting observable deviation D.
+
+
+FAILURE MODE AND EFFECT 
+For each failure formulated  map a software failure mode to a function or component/module: 
+
+For each failure mode ask and reason about the effects of failure mode
+If this failure occurs, what does it impact?
+
+- Does it stay local?
+- Does it propagate to callers?
+- Does it corrupt shared state?
+- Does it cause an exception?
+- Is the exception handled?
+- Does it cause a retry?
+- Does retry amplify the failure?
+- Does it affect another subsystem?
+
+HIST0RICAL FAILURE ANALYSIS
+If no retrieved skip this step,
+
+Compare analysis over historical failures 
+- Are there gaps history provided you missed ?
+- Does the historical failure have no correlation to the failure modes discovered?
+- 
+
+Consolidate if historical failure points with intial failure mode and effect analysis
+
+RPN / confidence assessment 
+Using rpn scoring with severity and likelihood scoring 
+1 - 
+2 - 
+3 - 
+4 - 
+5 - Catasphoric : effect propogation to sub system is high 
+
+1 - 
+2 - 
+3 - 
+4 - Reasonanbly probable : 
+5 - Frequent : failure mode surfaced in intial analysis and historical knowledge showed failure pattern
+
+Preventive constraint 
