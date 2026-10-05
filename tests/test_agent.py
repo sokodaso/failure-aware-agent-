@@ -1,4 +1,6 @@
 import json
+import sys
+from pathlib import Path
 
 import pytest
 from minisweagent.models.test_models import DeterministicModel, make_output
@@ -31,3 +33,15 @@ def test_harness_prepends_analysis_to_the_problem(tmp_path):
 def test_harness_requires_llm_and_retrieve(tmp_path):
     with pytest.raises(ValueError):
         solve("t", workdir=tmp_path, model=script(), harness=True)
+
+
+@pytest.mark.skipif(sys.platform != "darwin", reason="sandbox-exec is macOS only")
+def test_sandbox_confines_writes_reads_and_network(tmp_path):
+    from harness.sandbox import SandboxedLocalEnvironment
+
+    outside = Path.home() / "sandbox_escape_probe.txt"
+    env = SandboxedLocalEnvironment(cwd=str(tmp_path / "w"))
+    assert env.execute({"command": "echo ok > in.txt && cat in.txt"})["output"] == "ok\n"
+    assert env.execute({"command": f"echo x > {outside}"})["returncode"] != 0 and not outside.exists()
+    assert env.execute({"command": "cd .. && ls ~/.. /Users"})["returncode"] != 0
+    assert env.execute({"command": "curl -s -m 3 http://example.com"})["returncode"] != 0

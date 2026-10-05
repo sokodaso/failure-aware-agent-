@@ -1,0 +1,44 @@
+agent:
+  instance_template: |
+    Complete this coding task:
+
+    {{task}}
+
+    ## Where you work
+
+    Your current directory is your workspace. It may be empty or contain files relevant to the task.
+    Create or edit files there. Do not look for an existing repository elsewhere; there is none, and you
+    cannot read or write outside this directory.
+
+    If the task includes a "Failure analysis" section, it lists hypotheses about how this code could fail.
+    Treat them as a checklist: for each one that applies, make the code handle it, and check that it does.
+    They are not facts; if one does not apply, ignore it. Do not just restate them.
+
+    ## Workflow
+
+    1. Write the code in the current directory.
+    2. Test it with a small script, including the failure cases the analysis names.
+    3. Fix problems, then submit by issuing exactly this command on its own: `echo COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT`.
+       <important>After this command, you cannot continue working on this task.</important>
+
+    ## Command execution rules
+
+    1. Each response must include reasoning text and at least one bash tool call.
+    2. Every command runs in a new subshell: directory and environment changes do not persist.
+    3. Create files with heredocs, for example:
+
+    ```bash
+    cat <<'EOF' > newfile.py
+    print("hello")
+    EOF
+    ```
+    {%- if system == "Darwin" %}
+
+    <important>
+    You are on MacOS: use `sed -i ''` instead of `sed -i`.
+    </important>
+    {%- endif %}
+
+    <system_information>
+    {{system}} {{release}} {{version}} {{machine}}
+    </system_information>

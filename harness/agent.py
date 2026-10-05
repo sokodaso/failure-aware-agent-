@@ -22,10 +22,12 @@ from minisweagent.models.litellm_model import LitellmModel  # noqa: E402
 
 from .llm import LLM  # noqa: E402
 from .models import Analysis  # noqa: E402
+from .sandbox import SandboxedLocalEnvironment  # noqa: E402
 from .pipeline import run  # noqa: E402
 from .render import render_problem_statement  # noqa: E402
 
 DEFAULT_CONFIG = package_dir / "config" / "mini.yaml"
+PROMPT_CONFIG = Path(__file__).parent / "agent_prompt.yaml"  # generation-task framing over mini's defaults
 
 
 @dataclass
@@ -42,7 +44,7 @@ class SolveResult:
 def solve(task: str, language: str = "python", *, workdir: str | Path, model=None, model_name: str | None = None,
           harness: bool = True, llm: LLM | None = None, retrieve=None, apis: list[str] | None = None,
           top_k: int = 3, files: dict[str, str] | None = None, step_limit: int = 0, cost_limit: float = 3.0,
-          trajectory: Path | None = None, problem_out: Path | None = None,
+          trajectory: Path | None = None, problem_out: Path | None = None, sandbox: bool = True,
           config_path: Path = DEFAULT_CONFIG) -> SolveResult:
     """Run the agent in `workdir`. `model` (a mini-swe-agent Model) overrides `model_name`, e.g. for tests."""
     workdir = Path(workdir)
@@ -59,10 +61,12 @@ def solve(task: str, language: str = "python", *, workdir: str | Path, model=Non
 
     cfg = yaml.safe_load(Path(config_path).read_text())
     agent_cfg = {k: v for k, v in cfg["agent"].items() if k != "mode"}  # `mode` belongs to the interactive UI
+    agent_cfg |= yaml.safe_load(PROMPT_CONFIG.read_text())["agent"]
     agent_cfg |= {"step_limit": step_limit, "cost_limit": cost_limit, "output_path": trajectory}
     if model is None:
         model = LitellmModel(model_name=model_name or os.environ["MSWEA_MODEL_NAME"], **cfg.get("model", {}))
-    env = LocalEnvironment(cwd=str(workdir), **cfg.get("environment", {}))
+    env_class = SandboxedLocalEnvironment if sandbox else LocalEnvironment
+    env = env_class(cwd=str(workdir), **cfg.get("environment", {}))
 
     agent = DefaultAgent(model, env, **agent_cfg)
     out = agent.run(problem)
@@ -82,6 +86,7 @@ def main() -> None:
     ap.add_argument("--step-limit", type=int, default=0)
     ap.add_argument("--cost-limit", type=float, default=3.0)
     ap.add_argument("--trajectory", type=Path, help="save the agent trajectory (json) here")
+    ap.add_argument("--no-sandbox", action="store_true", help="run commands unsandboxed (not recommended)")
     ap.add_argument("--problem-out", type=Path, help="save the problem statement the agent saw")
     args = ap.parse_args()
 
@@ -100,7 +105,8 @@ def main() -> None:
     try:
         res = solve(task, args.language, workdir=args.workdir, model_name=args.model, harness=not args.no_harness,
                     llm=llm, retrieve=retrieve, apis=args.api, top_k=args.top_k, step_limit=args.step_limit,
-                    cost_limit=args.cost_limit, trajectory=args.trajectory, problem_out=args.problem_out)
+                    cost_limit=args.cost_limit, trajectory=args.trajectory, problem_out=args.problem_out,
+                    sandbox=not args.no_sandbox)
     finally:
         if driver:
             driver.close()
