@@ -23,7 +23,7 @@ from minisweagent.models.litellm_model import LitellmModel  # noqa: E402
 from .llm import LLM  # noqa: E402
 from .models import Analysis  # noqa: E402
 from .sandbox import SandboxedLocalEnvironment  # noqa: E402
-from .pipeline import run  # noqa: E402
+from .pipeline import run, run_v2, run_v3  # noqa: E402
 from .render import render_problem_statement  # noqa: E402
 
 DEFAULT_CONFIG = package_dir / "config" / "mini.yaml"
@@ -42,7 +42,7 @@ class SolveResult:
 
 
 def solve(task: str, language: str = "python", *, workdir: str | Path, model=None, model_name: str | None = None,
-          harness: bool = True, llm: LLM | None = None, retrieve=None, apis: list[str] | None = None,
+          harness: bool = True, version: int = 1, llm: LLM | None = None, retrieve=None, apis: list[str] | None = None,
           top_k: int = 3, files: dict[str, str] | None = None, step_limit: int = 0, cost_limit: float = 3.0,
           trajectory: Path | None = None, problem_out: Path | None = None, sandbox: bool = True,
           config_path: Path = DEFAULT_CONFIG) -> SolveResult:
@@ -54,8 +54,12 @@ def solve(task: str, language: str = "python", *, workdir: str | Path, model=Non
     if harness:
         if llm is None or retrieve is None:
             raise ValueError("harness=True needs llm and retrieve")
-        analysis = run(task, language, llm, retrieve, apis, top_k, files)
-        problem = render_problem_statement(task, analysis)
+        if version in (2, 3):
+            analysis, draft = (run_v2 if version == 2 else run_v3)(task, language, llm, retrieve, top_k, files)
+            problem = render_problem_statement(task, analysis, draft)
+        else:
+            analysis = run(task, language, llm, retrieve, apis, top_k, files)
+            problem = render_problem_statement(task, analysis)
     if problem_out:
         problem_out.write_text(problem)
 
@@ -81,6 +85,9 @@ def main() -> None:
     ap.add_argument("--workdir", required=True, help="directory the agent works in")
     ap.add_argument("--model", help="litellm model name (default: $MSWEA_MODEL_NAME)")
     ap.add_argument("--no-harness", action="store_true", help="baseline: skip retrieval and failure analysis")
+    ap.add_argument("--harness-version", type=int, choices=(1, 2, 3), default=1,
+                    help="1: analysis before any code; 2: draft first, one retrieval query; "
+                         "3: draft first, one retrieval query per component")
     ap.add_argument("--api", action="append", default=[], help="expected API call, for the local comparison")
     ap.add_argument("--top-k", type=int, default=3)
     ap.add_argument("--step-limit", type=int, default=0)
@@ -103,7 +110,7 @@ def main() -> None:
         retrieve = lambda q, lang, apis: kg_retrieve(driver, embedder, q, lang, apis)  # noqa: E731
         llm = OpenAILLM()
     try:
-        res = solve(task, args.language, workdir=args.workdir, model_name=args.model, harness=not args.no_harness,
+        res = solve(task, args.language, workdir=args.workdir, model_name=args.model, harness=not args.no_harness, version=args.harness_version,
                     llm=llm, retrieve=retrieve, apis=args.api, top_k=args.top_k, step_limit=args.step_limit,
                     cost_limit=args.cost_limit, trajectory=args.trajectory, problem_out=args.problem_out,
                     sandbox=not args.no_sandbox)

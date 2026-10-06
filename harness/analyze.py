@@ -28,11 +28,29 @@ analysis AND in retrieved history). Evidence levels, strongest first: repository
 inference. Use "history" only for failures backed by a retrieved weakness and cite its CWE id in
 "ref"; anything you reasoned out yourself is "inference"."""
 
+SYSTEM_V2 = """You perform failure analysis for a coding agent. The agent has already DRAFTED an implementation
+(shown below). Attack the draft: find how it fails, and what must change. Follow the skill below, except that
+code now exists. Reply with a single JSON object and nothing else."""
+
+V2_RULES = """Rules for this analysis:
+- "component" must name a specific function or call in the draft, quoted as it appears in the code.
+- For every call in the draft that touches files, processes, the network, a database, memory, parsing or
+  crypto, ask what that API does with hostile or unusual input. Include such failures at level "inference"
+  even when nothing was retrieved for them.
+- "control" must name the exact operation and the concrete check that guards it, in the form "before <call>,
+  verify <property> using <API or condition>; reject otherwise". Generic advice such as "sanitize input" or
+  "validate paths" is not acceptable.
+- Retrieved fixes come from other code. Say in "retrieval_fit" whether each retrieved weakness's example fix
+  applies to THIS draft's operation. Do not copy a fix that does not fit the operation."""
+
 FMEA_CONTRACT = f"""{SCALES}
 Return: {{"failure_modes": [{{"id": "FM1", "component": "...", "failure_mode": "Under condition X,
 Y fails to Z by D", "viewpoint": "{'|'.join(VIEWPOINTS)}", "effect": "...", "severity": 1-5,
 "likelihood": 1-5, "evidence": [{{"level": "...", "ref": "..."}}], "cwe": "CWE-n or null",
 "control": "preventive constraint"}}]}}"""
+
+FMEA_CONTRACT_V2 = FMEA_CONTRACT[:-2] + f""", "retrieval_fit": [{{"cwe": "CWE-n", "applies": true,
+"reason": "..."}}]}}"""
 
 FTA_CONTRACT = f"""You are given the highest-RPN failure modes. For each, build a fault tree: the
 failure's effect is the top event; each node has 2-{MAX_CHILDREN} children, a gate (AND|OR),
@@ -62,6 +80,8 @@ def render_knowledge(knowledge: list[Knowledge]) -> str:
     blocks = []
     for k in knowledge:
         lines = [f"### {k.cwe}: {k.name}"]
+        if k.via:
+            lines.append("Retrieved for component: " + "; ".join(k.via))
         if k.cause:
             lines.append("Cause seen in similar real code: " + _clip(k.cause, MAX_CAUSE))
         if k.patch:
@@ -72,15 +92,21 @@ def render_knowledge(knowledge: list[Knowledge]) -> str:
     return "\n\n".join(blocks)
 
 
-def build_context(task: str, language: str, knowledge: list[Knowledge], files: dict[str, str] | None = None) -> str:
+def build_context(task: str, language: str, knowledge: list[Knowledge], files: dict[str, str] | None = None,
+                  draft: str | None = None, apis: list[str] | None = None) -> str:
     out = [f"Language: {language}", f"Task:\n{task}"]
+    if draft is not None:
+        out.append(f"Draft implementation:\n```\n{_clip(draft, MAX_FILE)}\n```")
+        out.append("APIs called by the draft: " + (", ".join(apis or []) or "(none)"))
     for path, text in (files or {}).items():
         out.append(f"Repository file {path}:\n{_clip(text, MAX_FILE)}")
     out.append("Retrieved historical failures:\n\n" + render_knowledge(knowledge))
     return "\n\n".join(out)
 
 
-def fmea_prompt(context: str) -> str:
+def fmea_prompt(context: str, v2: bool = False) -> str:
+    if v2:
+        return f"{context}\n\nPerform the FMEA now.\n{V2_RULES}\n{FMEA_CONTRACT_V2}"
     return f"{context}\n\nPerform the FMEA now.\n{FMEA_CONTRACT}"
 
 
@@ -187,13 +213,20 @@ def validate_fta(raw: dict, modes: list[FailureMode], notes: list[str]) -> tuple
 
 
 def analyze(task: str, language: str, knowledge: list[Knowledge], llm: LLM,
-            files: dict[str, str] | None = None) -> Analysis:
-    system = f"{SYSTEM}\n\n{load_skill()}"
-    context = build_context(task, language, knowledge, files)
+            files: dict[str, str] | None = None, draft: str | None = None,
+            apis: list[str] | None = None) -> Analysis:
+    """draft=None is the v1 analysis (no code yet); a draft switches to the v2 attack-the-draft prompts."""
+    v2 = draft is not None
+    system = f"{SYSTEM_V2 if v2 else SYSTEM}\n\n{load_skill()}"
+    context = build_context(task, language, knowledge, files, draft, apis)
     notes: list[str] = []
     retrieved = {k.cwe for k in knowledge}
 
-    modes = validate_failure_modes(_ask(llm, system, fmea_prompt(context)).get("failure_modes") or [], retrieved, notes)
+    raw_fmea = _ask(llm, system, fmea_prompt(context, v2))
+    for fit in raw_fmea.get("retrieval_fit") or []:
+        if isinstance(fit, dict) and fit.get("applies") is False:
+            notes.append(f"retrieved {fit.get('cwe')} fix does not fit this draft: {fit.get('reason', '')}")
+    modes = validate_failure_modes(raw_fmea.get("failure_modes") or [], retrieved, notes)
     trees, actions = [], []
     if modes:
         raw = _ask(llm, system, fta_prompt(context, modes[:FTA_TOP_N]))

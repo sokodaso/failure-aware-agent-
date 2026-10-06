@@ -7,4 +7,26 @@ __pycache__/
 .env
 
 #Tests
-tests/
+tests/eval/
+
+#OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+#Test / tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+#Logs
+*.log
+
+#Third-party eval clone (has its own .git; re-clone per docs/eval_plan.md)
+eval/CodeGuardPlus/
+
+#Eval run artifacts (generated code, CodeQL databases/output)
+eval/**/codeql_db/
+eval/**/*.sarif

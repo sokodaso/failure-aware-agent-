@@ -33,5 +33,13 @@ def render_insights(a: Analysis) -> str:
     return "\n".join(out)
 
 
-def render_problem_statement(issue: str, a: Analysis) -> str:
-    return f"{issue.strip()}\n\n{render_insights(a)}\n"
+def render_problem_statement(issue: str, a: Analysis, draft: str | None = None) -> str:
+    out = issue.strip()
+    if draft is not None:
+        out += ("\n\n## Draft implementation\nA first attempt, which may be flawed. Revise it in the working "
+                f"directory rather than starting over.\n```\n{draft}\n```")
+    out += f"\n\n{render_insights(a)}"
+    notes = [n for n in a.notes if n.startswith("retrieved ")]
+    if notes:
+        out += "\n\n### Retrieval notes\n" + "\n".join(f"- {n}" for n in notes)
+    return out + "\n"

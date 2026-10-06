@@ -10,6 +10,7 @@ class Knowledge:
     cause: str | None = None  # vulnerability_cause from a real fix pair
     patch: str | None = None  # the fix diff
     guideline: str | None = None
+    via: list[str] = field(default_factory=list)  # v3: the component description(s) that retrieved it
 
 
 @dataclass
