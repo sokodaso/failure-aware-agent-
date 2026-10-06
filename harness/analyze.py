@@ -32,31 +32,36 @@ SYSTEM_V2 = """You perform failure analysis for a coding agent. The agent has al
 (shown below). Attack the draft: find how it fails, and what must change. Follow the skill below, except that
 code now exists. Reply with a single JSON object and nothing else."""
 
-V2_RULES = """Rules for this analysis:
-- "component" must name a specific function or call in the draft, quoted as it appears in the code.
-- For every call in the draft that touches files, processes, the network, a database, memory, parsing or
-  crypto, ask what that API does with hostile or unusual input. Include such failures at level "inference"
-  even when nothing was retrieved for them.
-- "control" must name the exact operation and the concrete check that guards it, in the form "before <call>,
-  verify <property> using <API or condition>; reject otherwise". Generic advice such as "sanitize input" or
-  "validate paths" is not acceptable.
-- Retrieved fixes come from other code. Say in "retrieval_fit" whether each retrieved weakness's example fix
-  applies to THIS draft's operation. Do not copy a fix that does not fit the operation."""
+FMEA_RULES = """Rules for this analysis (they apply in full):
+- For every operation that touches files, processes, the network, a database, memory, parsing or crypto, ask what
+  it does with hostile or unusual input. Include such failures at level "inference" even when nothing was
+  retrieved for them.
+- Retrieved weaknesses are CANDIDATES from other code. They may not apply here. In "retrieval_fit" say, for each
+  one, whether its example fix fits THIS task's operation, and do not copy a fix that does not fit.
+- "control" must name the operation and the concrete guard, in the form "before <operation>, verify <property>
+  using <API or condition>; reject otherwise". Generic advice such as "sanitize input" or "validate paths" is not
+  acceptable.
+- A control must not reject valid input. For every control give "valid_check": a concrete input that must still be
+  accepted and work once the control is in place."""
+
+COMPONENT_V1 = """- "component" names the operation or step of the task where the failure happens."""
+COMPONENT_V2 = """- "component" must name a specific function or call in the draft, quoted as it appears in the code."""
 
 FMEA_CONTRACT = f"""{SCALES}
 Return: {{"failure_modes": [{{"id": "FM1", "component": "...", "failure_mode": "Under condition X,
 Y fails to Z by D", "viewpoint": "{'|'.join(VIEWPOINTS)}", "effect": "...", "severity": 1-5,
 "likelihood": 1-5, "evidence": [{{"level": "...", "ref": "..."}}], "cwe": "CWE-n or null",
-"control": "preventive constraint"}}]}}"""
-
-FMEA_CONTRACT_V2 = FMEA_CONTRACT[:-2] + f""", "retrieval_fit": [{{"cwe": "CWE-n", "applies": true,
-"reason": "..."}}]}}"""
+"control": "before <operation>, verify <property> using <API or condition>; reject otherwise",
+"valid_check": "an input that must still be accepted"}}],
+"retrieval_fit": [{{"cwe": "CWE-n", "applies": true, "reason": "..."}}]}}"""
 
 FTA_CONTRACT = f"""You are given the highest-RPN failure modes. For each, build a fault tree: the
 failure's effect is the top event; each node has 2-{MAX_CHILDREN} children, a gate (AND|OR),
 a cause_type (timing|value|omission|n/a); basic events have no children and no gate. Max depth
 {MAX_DEPTH}, max {MAX_NODES} nodes per tree. Then give the actions a coding agent should take
-BEFORE and WHILE implementing, each tied to failure ids and tied to a check that would show it works.
+BEFORE and WHILE implementing, each tied to failure ids. Each action's "verification" must contain both an attack
+check (a hostile input that must be rejected or neutralised) and a happy-path check (a valid input that must still
+work).
 Return: {{"fault_trees": [{{"failure_mode_id": "FM1", "top_event": "...", "root": {{"event": "...",
 "gate": "OR", "cause_type": "value", "children": [...]}}}}], "actions": [{{"action": "...",
 "targets": ["file or function"], "failure_ids": ["FM1"], "verification": "..."}}]}}"""
@@ -80,8 +85,6 @@ def render_knowledge(knowledge: list[Knowledge]) -> str:
     blocks = []
     for k in knowledge:
         lines = [f"### {k.cwe}: {k.name}"]
-        if k.via:
-            lines.append("Retrieved for component: " + "; ".join(k.via))
         if k.cause:
             lines.append("Cause seen in similar real code: " + _clip(k.cause, MAX_CAUSE))
         if k.patch:
@@ -100,14 +103,13 @@ def build_context(task: str, language: str, knowledge: list[Knowledge], files: d
         out.append("APIs called by the draft: " + (", ".join(apis or []) or "(none)"))
     for path, text in (files or {}).items():
         out.append(f"Repository file {path}:\n{_clip(text, MAX_FILE)}")
-    out.append("Retrieved historical failures:\n\n" + render_knowledge(knowledge))
+    out.append("Retrieved candidate failures (from other code; they may not apply):\n\n" + render_knowledge(knowledge))
     return "\n\n".join(out)
 
 
 def fmea_prompt(context: str, v2: bool = False) -> str:
-    if v2:
-        return f"{context}\n\nPerform the FMEA now.\n{V2_RULES}\n{FMEA_CONTRACT_V2}"
-    return f"{context}\n\nPerform the FMEA now.\n{FMEA_CONTRACT}"
+    rules = f"{FMEA_RULES}\n{COMPONENT_V2 if v2 else COMPONENT_V1}"
+    return f"{context}\n\nPerform the FMEA now.\n{rules}\n{FMEA_CONTRACT}"
 
 
 def fta_prompt(context: str, top: list[FailureMode]) -> str:
@@ -164,6 +166,7 @@ def validate_failure_modes(raw: list[dict], retrieved: set[str], notes: list[str
         modes.append(FailureMode(
             fid, str(r.get("component", "")), r["failure_mode"], viewpoint, str(r.get("effect", "")),
             _clamp(r.get("severity"), 3), _clamp(r.get("likelihood"), 3), evidence, cwe, str(r.get("control", "")),
+            str(r.get("valid_check", "")),
         ))
     return sorted(modes, key=lambda f: -f.rpn)
 
@@ -225,7 +228,7 @@ def analyze(task: str, language: str, knowledge: list[Knowledge], llm: LLM,
     raw_fmea = _ask(llm, system, fmea_prompt(context, v2))
     for fit in raw_fmea.get("retrieval_fit") or []:
         if isinstance(fit, dict) and fit.get("applies") is False:
-            notes.append(f"retrieved {fit.get('cwe')} fix does not fit this draft: {fit.get('reason', '')}")
+            notes.append(f"retrieved {fit.get('cwe')} fix does not fit this task: {fit.get('reason', '')}")
     modes = validate_failure_modes(raw_fmea.get("failure_modes") or [], retrieved, notes)
     trees, actions = [], []
     if modes:

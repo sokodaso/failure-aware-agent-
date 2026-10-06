@@ -23,7 +23,7 @@ from minisweagent.models.litellm_model import LitellmModel  # noqa: E402
 from .llm import LLM  # noqa: E402
 from .models import Analysis  # noqa: E402
 from .sandbox import SandboxedLocalEnvironment  # noqa: E402
-from .pipeline import run, run_v2, run_v3  # noqa: E402
+from .pipeline import run, run_v2  # noqa: E402
 from .render import render_problem_statement  # noqa: E402
 
 DEFAULT_CONFIG = package_dir / "config" / "mini.yaml"
@@ -54,8 +54,8 @@ def solve(task: str, language: str = "python", *, workdir: str | Path, model=Non
     if harness:
         if llm is None or retrieve is None:
             raise ValueError("harness=True needs llm and retrieve")
-        if version in (2, 3):
-            analysis, draft = (run_v2 if version == 2 else run_v3)(task, language, llm, retrieve, top_k, files)
+        if version == 2:
+            analysis, draft = run_v2(task, language, llm, retrieve, top_k, files)
             problem = render_problem_statement(task, analysis, draft)
         else:
             analysis = run(task, language, llm, retrieve, apis, top_k, files)
@@ -85,9 +85,8 @@ def main() -> None:
     ap.add_argument("--workdir", required=True, help="directory the agent works in")
     ap.add_argument("--model", help="litellm model name (default: $MSWEA_MODEL_NAME)")
     ap.add_argument("--no-harness", action="store_true", help="baseline: skip retrieval and failure analysis")
-    ap.add_argument("--harness-version", type=int, choices=(1, 2, 3), default=1,
-                    help="1: analysis before any code; 2: draft first, one retrieval query; "
-                         "3: draft first, one retrieval query per component")
+    ap.add_argument("--harness-version", type=int, choices=(1, 2), default=1,
+                    help="1: analysis before any code; 2: draft first, then analysis of the draft")
     ap.add_argument("--api", action="append", default=[], help="expected API call, for the local comparison")
     ap.add_argument("--top-k", type=int, default=3)
     ap.add_argument("--step-limit", type=int, default=0)

@@ -6,6 +6,8 @@ Per CodeGuard+ scenario (a code-completion prefix with a gold CWE) the same draf
   task   one query: LLM summary of what the function must do          (v1 style, no APIs)
   apis   the same query + the APIs called by the draft                   (v2)
   comps  one query per failure-boundary component of the draft, merged   (v3)
+Needs v3 (split_components, gather_components), which was removed from the harness after commit d40f5b7;
+run it at that commit to reproduce.
 LLM output is cached in the results file, so reruns and re-scoring cost nothing.
 """
 

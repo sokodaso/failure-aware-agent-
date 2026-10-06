@@ -10,7 +10,6 @@ class Knowledge:
     cause: str | None = None  # vulnerability_cause from a real fix pair
     patch: str | None = None  # the fix diff
     guideline: str | None = None
-    via: list[str] = field(default_factory=list)  # v3: the component description(s) that retrieved it
 
 
 @dataclass
@@ -31,6 +30,7 @@ class FailureMode:
     evidence: list[Evidence] = field(default_factory=list)
     cwe: str | None = None
     control: str = ""  # preventive constraint
+    valid_check: str = ""  # an input that must still work once the control is in place
 
     @property
     def rpn(self) -> int:

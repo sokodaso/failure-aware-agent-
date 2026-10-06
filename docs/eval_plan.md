@@ -84,6 +84,19 @@ Pool, from the 103 local CodeGuard+ base scenarios (the clone has no perturbed s
      CodeGuard+'s directory layout.
    - 10 samples per scenario (CodeGuard+ default).
 3. Per-run caps: step limit 25, cost limit $0.30. Everything is logged: trajectory, problem statement, analysis, cost.
+4. **Logs for design work after the results** (captured by the runner, outside the frozen harness, by wrapping the
+   LLM and the retrieval function). One directory per scenario / arm / sample:
+   - `scenario.json`: id, CWE, language, bucket, KG depth, stratum, prompt summary (the retrieval query).
+   - `retrieval.json`: the full query, every hit (functionality text, similarity, versions, CWEs), every ranked
+     candidate with score and evidence, the top_k kept, and the gold CWE's rank (or absent).
+   - `llm_calls.jsonl`: every harness LLM call in order (stage: summary / draft / fmea / fta / retry), system and user
+     prompt, raw reply, tokens, latency.
+   - `analysis.json`: the validated Analysis plus validation notes (what was dropped, downgraded, judged not to fit),
+     and the raw `retrieval_fit` entries.
+   - `draft.txt` (v2), `problem.md` (what the agent saw), `trajectory.json`, the extracted completion.
+   - `score.json`: functional result, CodeQL findings (rule id, CWE, location), sec-pass, agent cost and steps, exit
+     status, harness tokens and cost.
+   - A run-level `index.jsonl` with one flat row per run, so the analysis needs no directory walking.
 
 ## 6. Run
 
@@ -118,7 +131,7 @@ Run order is interleaved by scenario so an outage affects all arms equally. Resu
 1. Review this plan.
 2. Commit the current state, then remove v3 (section 3, step 1).
 3. Tighten the FMEA and drop APIs from v2 retrieval; tests; commit; tag `eval-freeze`.
-4. Select and log the 30 scenarios, including the contamination check. **Stop for review.**
+4. Select and log the 30 scenarios, including the contamination check. **Stop for review.** ( Extensive logs inorder to improve design and )
 5. CodeQL setup and the stock-scoring gate.
 6. Adapter, then a 2-scenario dry run on all three arms (cost cap, output format) with scenarios outside the 30.
 7. Full run, then scoring and write-up.

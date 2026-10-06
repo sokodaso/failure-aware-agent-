@@ -1,10 +1,8 @@
-"""v2 front end: the agent's own model drafts the code, and the APIs it calls become the retrieval key."""
+"""v2 front end: the agent's own model drafts the code, and the APIs it calls give the analysis context."""
 
 import ast
 import re
-from dataclasses import dataclass, field
 
-from .analyze import parse_json
 from .llm import LLM
 
 DRAFT_SYSTEM = "You are an expert programmer. Reply with one complete implementation in a single fenced code block."
@@ -43,38 +41,3 @@ def extract_apis(code: str, language: str) -> list[str]:
             names.append(m.group(1))
     return list(dict.fromkeys(names))
 
-
-@dataclass
-class Component:
-    description: str  # one functionality sentence, the style the graph is indexed by
-    apis: list[str] = field(default_factory=list)
-
-
-MAX_COMPONENTS = 4
-SPLIT_SYSTEM = "You decompose code into components. Reply with a single JSON object and nothing else."
-SPLIT_PROMPT = """Task:
-{task}
-
-Implementation ({language}):
-```
-{code}
-```
-
-Break the implementation into at most {n} components, one per place where it depends on or acts on something
-outside plain computation: the filesystem, processes, the network, a database, parsing an external format,
-memory, or cryptography. For each component give "description": one sentence saying what it does, written like a
-function summary (e.g. "Reads a file and returns its lines"), and "apis": the calls it makes, spelled as in the code.
-Return: {{"components": [{{"description": "...", "apis": ["..."]}}]}}"""
-
-
-def split_components(draft: str, task: str, language: str, llm: LLM, apis: list[str]) -> list[Component]:
-    """Failure-boundary components of the draft. Falls back to one task-level component."""
-    fallback = [Component(task, apis)]
-    try:
-        raw = parse_json(llm.chat(SPLIT_SYSTEM, SPLIT_PROMPT.format(task=task, language=language, code=draft,
-                                                                    n=MAX_COMPONENTS)))
-        comps = [Component(str(c["description"]), [str(a) for a in c.get("apis") or []])
-                 for c in raw.get("components") or [] if c.get("description")]
-    except (ValueError, KeyError, TypeError, AttributeError):
-        return fallback
-    return comps[:MAX_COMPONENTS] or fallback

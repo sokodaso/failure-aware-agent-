@@ -131,14 +131,15 @@ def test_draft_code_takes_the_fenced_block():
     assert draft_code("t", "python", ScriptedLLM("here:\n```python\nx = 1\n```\nbye")) == "x = 1"
 
 
-def test_v2_drafts_first_retrieves_with_draft_apis_and_analyzes_the_draft():
+def test_v2_drafts_first_retrieves_by_task_only_and_analyzes_the_draft():
     log = []
     fmea = {"failure_modes": [fm(1, 4, 4)], "retrieval_fit": [{"cwe": "CWE-22", "applies": False, "reason": "basename"}]}
     llm = ScriptedLLM("```python\nimport os\nos.remove(p)\n```", json.dumps(fmea),
                       json.dumps({"fault_trees": [], "actions": []}))
     a, draft = run_v2("delete a file", "python", llm, make_retrieve(log))
-    assert draft == "import os\nos.remove(p)" and log == [("delete a file", "python", ["os.remove"])]
+    assert draft == "import os\nos.remove(p)" and log == [("delete a file", "python", [])]  # APIs are context, not the query
     assert "Draft implementation" in llm.prompts[1][1] and "os.remove" in llm.prompts[1][1]
+    assert "APIs called by the draft: os.remove" in llm.prompts[1][1]
     assert "retrieval_fit" in llm.prompts[1][1] and "has NOT yet" not in llm.prompts[1][0]
     assert any("does not fit" in n for n in a.notes)
     text = render_problem_statement("delete a file", a, draft)
@@ -151,39 +152,28 @@ def test_v1_prompt_is_unchanged_by_v2():
     assert "has NOT yet" in llm.prompts[0][0] and "Draft implementation" not in llm.prompts[0][1]
 
 
-# ---- v3: one retrieval per failure-boundary component
-from harness.draft import Component, split_components  # noqa: E402
-from harness.knowledge import gather_components  # noqa: E402
-from harness.pipeline import run_v3  # noqa: E402
+def test_v1_and_v2_share_the_rules_and_differ_only_in_component_wording():
+    from harness.analyze import COMPONENT_V1, COMPONENT_V2, FMEA_RULES, fmea_prompt
+    p1, p2 = fmea_prompt("ctx"), fmea_prompt("ctx", v2=True)
+    for p in (p1, p2):
+        assert FMEA_RULES in p and "valid_check" in p and "retrieval_fit" in p and "CANDIDATES" in p
+    assert COMPONENT_V1 in p1 and COMPONENT_V2 in p2 and COMPONENT_V2 not in p1
+    assert p1.replace(COMPONENT_V1, "") == p2.replace(COMPONENT_V2, "")
 
 
-def test_split_components_parses_caps_and_falls_back():
-    good = json.dumps({"components": [{"description": f"does {i}", "apis": [f"a{i}"]} for i in range(6)]})
-    comps = split_components("x", "task", "python", ScriptedLLM(good), ["z"])
-    assert len(comps) == 4 and comps[0] == Component("does 0", ["a0"])
-    assert split_components("x", "task", "python", ScriptedLLM("not json"), ["z"]) == [Component("task", ["z"])]
-    assert split_components("x", "task", "python", ScriptedLLM('{"components": []}'), ["z"]) == [Component("task", ["z"])]
+def test_fta_prompt_requires_attack_and_happy_path_checks():
+    from harness.analyze import fta_prompt
+    from harness.models import FailureMode
+    p = fta_prompt("ctx", [FailureMode("FM1", "c", "m", "security", "e", 3, 3)])
+    assert "attack" in p and "happy-path" in p
 
 
-def test_gather_components_queries_each_and_merges_round_robin():
-    log = []
+def test_v1_retrieval_fit_notes_and_valid_check_reach_the_problem_statement():
+    f = dict(fm(1, 4, 4), valid_check="a/b.txt inside dest")
+    fmea = {"failure_modes": [f], "retrieval_fit": [{"cwe": "CWE-78", "applies": False, "reason": "no shell"}]}
+    a = run("t", "python", ScriptedLLM(json.dumps(fmea), json.dumps({"fault_trees": [], "actions": []})), make_retrieve([]))
+    assert a.failure_modes[0].valid_check == "a/b.txt inside dest"
+    text = render_problem_statement("t", a)
+    assert "Control: resolve and check prefix" in text and "Must still accept: a/b.txt inside dest" in text
+    assert "Retrieval notes" in text and "CWE-78" in text
 
-    def retrieve(q, lang, apis):
-        log.append((q, apis))
-        return [], ([cand("CWE-22", 0.9), cand("CWE-78", 0.5)] if q == "files" else [cand("CWE-89", 0.8), cand("CWE-22", 0.4)])
-
-    ks = gather_components([Component("files", ["open"]), Component("db", ["execute"])], "python", retrieve, top_k=3)
-    assert log == [("files", ["open"]), ("db", ["execute"])]
-    assert [k.cwe for k in ks] == ["CWE-22", "CWE-89", "CWE-78"]  # each component's best first, then the next rank
-    assert ks[0].via == ["files"] and "files" in build_context("t", "python", ks)
-
-
-def test_v3_splits_the_draft_and_retrieves_per_component():
-    log = []
-    comps = json.dumps({"components": [{"description": "reads a file", "apis": ["open"]},
-                                       {"description": "runs a command", "apis": ["os.system"]}]})
-    llm = ScriptedLLM("```python\nopen(p); os.system(c)\n```", comps, json.dumps({"failure_modes": [fm(1, 3, 3)]}),
-                      json.dumps({"fault_trees": [], "actions": []}))
-    a, draft = run_v3("t", "python", llm, make_retrieve(log))
-    assert [q for q, _, _ in log] == ["reads a file", "runs a command"] and log[1][2] == ["os.system"]
-    assert "Retrieved for component: reads a file" in llm.prompts[2][1]

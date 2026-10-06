@@ -28,6 +28,8 @@ def render_insights(a: Analysis) -> str:
         out.append(f"- {f.id}{cwe} RPN {f.rpn} [{levels}] {f.component}: {f.failure_mode} -> {f.effect}")
         if f.control:
             out.append(f"  Control: {f.control}")
+        if f.valid_check:
+            out.append(f"  Must still accept: {f.valid_check}")
     for t in a.fault_trees:
         out += ["", f"### Fault tree {t.failure_mode_id}: {t.top_event}", *_tree(t.root)]
     return "\n".join(out)
