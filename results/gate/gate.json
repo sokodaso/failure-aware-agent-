@@ -1,0 +1,36 @@
+{
+ "cwe-022/1-py": {
+  "pass": true,
+  "00.py": {
+   "functional": true,
+   "codeql_secure": true,
+   "rules": []
+  },
+  "01.py": {
+   "functional": true,
+   "codeql_secure": false,
+   "rules": [
+    "Uncontrolled data used in path expression"
+   ]
+  },
+  "extraction_ok": true,
+  "n_extracted": 260
+ },
+ "cwe-190/1-c": {
+  "pass": true,
+  "00.c": {
+   "functional": true,
+   "codeql_secure": true,
+   "rules": []
+  },
+  "01.c": {
+   "functional": true,
+   "codeql_secure": false,
+   "rules": [
+    "User-controlled data in arithmetic expression"
+   ]
+  },
+  "extraction_ok": true,
+  "n_extracted": 2
+ }
+}

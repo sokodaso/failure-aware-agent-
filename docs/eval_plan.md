@@ -74,19 +74,31 @@ Pool, from the 103 local CodeGuard+ base scenarios (the clone has no perturbed s
 - If CodeQL's C/C++ extraction does not work on this machine (step 5), use Python only: 15 of 25 covered and 15 of 33
   uncovered, matched on CWE type. That keeps the comparison valid and avoids the C build.
 
-**Selection (done, `scripts/select_scenarios.py`, logs in `results/selection/`).** Seed 20261006. Per group:
-Python injection 4, file/path 2, crypto/auth 2, deserialization/parsing 1, C memory 6 (identical strata in both
-groups). Within a stratum, a seeded round-robin over CWEs so no CWE fills it. The Python-only fallback (injection 7,
-file/path 2, crypto/auth 3, deserialization/parsing 3) uses the same ranking and contains the primary Python picks.
-Web-validation CWEs (020, 601, 918) have no covered counterpart and are not used. Contamination: 5-token shingles
-against all 2768 KG function versions (comments kept); near-duplicate = containment >= 0.5 or Jaccard >= 0.3 with at
-least 10 shared shingles (a shared `main(argc, argv)` line alone is 8-9). Checked on all 103: none flagged; highest
-overlap 23 of 268 shingles.
+**Selection (done, `scripts/select_scenarios.py`, logs in `results/selection/`).** Seed 20261006. Eligible: has a
+CodeQL query (9 of 103 have none and CodeGuard+ scores them with SonarQube only; security here is CodeQL only). Per
+group: Python injection 5, file/path 2, crypto/auth 1, deserialization/parsing 1, C memory 6 (identical strata in both
+groups). Crypto/auth has 1 slot because only CWE-312 is uncovered and scorable (CWE-329, 347, 760 have no query).
+Within a stratum, a seeded round-robin over CWEs so no CWE fills it; ineligible scenarios are skipped and logged. The
+Python-only fallback (injection 8, file/path 2, crypto/auth 1, deserialization/parsing 4) uses the same ranking and
+contains the primary Python picks. Web-validation CWEs (020, 601, 918) have no covered counterpart and are not used.
+Contamination: 5-token shingles against all 2768 KG function versions (comments kept); near-duplicate = containment
+>= 0.5 or Jaccard >= 0.3 with at least 10 shared shingles (a shared `main(argc, argv)` line alone is 8-9). Checked on
+all 103: none flagged; highest overlap 23 of 268 shingles.
 
 ## 5. Evaluator and adapter
 
 1. Install CodeQL (`setup_codeql.sh`) and run CodeGuard+'s stock `codeql_eval.py` and `correctness_eval.py` on one or
    two scenarios with a known outcome. This is a gate: no agent runs until scoring works.
+
+   **Done.** CodeQL CLI 2.17.5 (macOS build, under Rosetta) in `~/codeql`, query repo at `codeql-cli-2.17.5`, packs
+   as pinned in `setup_codeql.sh`. Evaluator deps in `eval/.venv-cg`. `scripts/cg_score.py` calls CodeGuard+'s own
+   `codeql_create_db`, `codeql_analyze`, CWE-78 false-positive filter and `check_functional`, and additionally checks
+   that the CodeQL database extracted every sample (a silent extraction failure would otherwise score all as secure).
+   Deviations: security is CodeQL only (no SonarQube), so numbers are not comparable with the CodeGuard+ leaderboard;
+   CodeGuard+'s patched `ArithmeticTainted.ql` (cwe-190/1-c) needs the legacy taint library, so it runs unchanged
+   from a local pack pinned to `cpp-all@0.7.1`; C compiles with Apple clang (`gcc`) instead of GCC. Gate
+   (`results/gate/gate.json`): cwe-022/1-py and cwe-190/1-c, a known-secure and a known-insecure completion each;
+   all four functional, exactly the insecure one flagged in each, C extraction works.
 2. Adapter, identical for all arms:
    - The scenario's prefix (file context + function stub) is the task context. Query text for the harness is an LLM
      summary of the prefix (as in the recall experiment).

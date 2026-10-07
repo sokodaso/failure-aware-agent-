@@ -30,3 +30,9 @@ eval/CodeGuardPlus/
 #Eval run artifacts (generated code, CodeQL databases/output)
 eval/**/codeql_db/
 eval/**/*.sarif
+
+#CodeGuard+ evaluator venv
+eval/.venv-cg/
+
+#Scorer scratch output (gate.json keeps the result)
+results/gate/out/

@@ -10,7 +10,8 @@ Bucket per scenario, by its CWE in its language (c and cpp count together, as in
   parent_covered absent itself, but its parent CWE is covered (excluded; would leak knowledge into "uncovered")
   uncovered      the CWE is absent from the KG
 Within each (language, CWE type) stratum, scenarios are ranked by a seeded round-robin over CWEs, so one CWE does
-not fill a stratum; the first n are taken, skipping covered scenarios whose prompt is a near-duplicate of KG code.
+not fill a stratum; the first n are taken, skipping scenarios with no CodeQL query (security is CodeQL-only) and
+covered scenarios whose prompt is a near-duplicate of KG code.
 The Python-only fallback uses the same ranking, so it contains the primary set's Python scenarios.
 """
 
@@ -44,10 +45,11 @@ TYPE = {
 }
 
 # Slots per group, per (language, type). Identical for covered and uncovered, so the groups match.
-PRIMARY = {("python", "injection"): 4, ("python", "file_path"): 2, ("python", "crypto_auth"): 2,
+# Python crypto/auth has 1 slot: CWE-329, 347 and 760 have no CodeQL query, leaving only CWE-312 uncovered.
+PRIMARY = {("python", "injection"): 5, ("python", "file_path"): 2, ("python", "crypto_auth"): 1,
            ("python", "deser_parsing"): 1, ("c", "memory"): 6}
-PYTHON_ONLY = {("python", "injection"): 7, ("python", "file_path"): 2, ("python", "crypto_auth"): 3,
-               ("python", "deser_parsing"): 3}
+PYTHON_ONLY = {("python", "injection"): 8, ("python", "file_path"): 2, ("python", "crypto_auth"): 1,
+               ("python", "deser_parsing"): 4}
 
 SHINGLE = 5
 FLAG_CONTAINMENT, FLAG_JACCARD = 0.5, 0.3
@@ -165,6 +167,9 @@ def select(scenarios: list[dict], slots: dict) -> tuple[list[dict], list[dict]]:
             for rank, s in enumerate(ranked(pool, f"{lang}:{typ}:{group}"), 1):
                 if len(picks) == n:
                     break
+                if not s["check_ql"]:
+                    skipped.append({"id": s["id"], "reason": "no CodeQL query (security unscorable)", "rank": rank})
+                    continue
                 if group == "covered" and s["contamination"]["near_duplicate"]:
                     skipped.append({"id": s["id"], "reason": "near-duplicate of KG code", "rank": rank})
                     continue
@@ -251,9 +256,9 @@ def main() -> None:
             f"{s['id']} {s['contamination']['max_containment']:.2f}"
             for s in sorted(primary, key=lambda s: -s['contamination']['max_containment'])[:5]), "",
         "## Primary (Python + C)", "", *summary_rows(primary), "",
-        "Skipped as near-duplicates: " + (", ".join(f"{x['id']} (rank {x['rank']})" for x in skipped_p) or "none"), "",
+        "Skipped: " + ("; ".join(f"{x['id']} (rank {x['rank']}, {x['reason']})" for x in skipped_p) or "none"), "",
         "## Fallback (Python only, if CodeQL C extraction fails)", "", *summary_rows(fallback), "",
-        "Skipped as near-duplicates: " + (", ".join(f"{x['id']} (rank {x['rank']})" for x in skipped_f) or "none"),
+        "Skipped: " + ("; ".join(f"{x['id']} (rank {x['rank']}, {x['reason']})" for x in skipped_f) or "none"),
     ]
     (args.out / "selection.md").write_text("\n".join(report) + "\n")
     print("\n".join(report))
