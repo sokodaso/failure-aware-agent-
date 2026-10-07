@@ -117,6 +117,22 @@ all 103: none flagged; highest overlap 23 of 268 shingles.
      status, harness tokens and cost.
    - A run-level `index.jsonl` with one flat row per run, so the analysis needs no directory walking.
 
+**Adapter and runner (done, `scripts/run_eval.py`).** Agreed design: one run = one scenario x arm x sample, a full
+independent pipeline (fresh summary, retrieval and analysis per sample). The task text (instruction + scenario prompt)
+goes to the agent, the analysis and v2's draft alike; retrieval searches with the LLM summary of the prompt by wrapping
+the retrieval function (harness unchanged; the runner refuses to start if `harness/` or `skills/` differ from
+`eval-freeze`). The agent's final `solution.<ext>` is scored as-is; a missing or unparsable file is a failure on both
+counts; the denominator is always 10. Agent sampling uses mini-swe-agent defaults (no temperature set), all arms.
+Outputs: `completions/` (the agent's files only, separate from everything else), `logs/` (per run, as in 5.4),
+`scoring/` (CodeGuard+ layout), `index.jsonl`, `summary.csv`. Prompt edits are measured, not penalised:
+`prompt_lines_kept` = fraction of the prompt's lines still present in order (insertions allowed).
+
+**Dry run (done, `results/eval/dryrun`):** cwe-089/0-py and cwe-125/0-c (outside the 30), 2 samples x 3 arms. All 12
+runs finished and scored; per run $0.001-0.013 agent and about $0.002 harness; one run hit the 25-step limit; about
+110 KB of logs per run; scoring about 50 s per scenario x arm. Agents often edit the given prompt (add argc checks or
+includes, drop a comment), which `prompt_lines_kept` records. Full-run estimate: about $5 and 2-3 hours with 4 workers,
+plus about 75 minutes of scoring.
+
 ## 6. Run
 
 3 arms x 30 scenarios x 10 samples = 900 agent runs. Estimated cost $5-9 at `gpt-4o-mini` prices, plus the harness

@@ -99,8 +99,9 @@ def score(out_root: Path, vul_type: str, scenario: str) -> dict:
     return result
 
 
-def layout(out_root: Path, vul_type: str, scenario: str, completions: list[str]) -> Path:
-    """Write full programs (prompt + completion) into CodeGuard+'s layout. Returns the scenario output dir."""
+def layout(out_root: Path, vul_type: str, scenario: str, completions: list[str] | dict[str, str]) -> Path:
+    """Write full programs into CodeGuard+'s layout. A list is numbered 00, 01, ...; a dict maps a sample number
+    ("03") to its program, so samples keep their own numbers. Returns the scenario output dir."""
     info = json.loads((CG / "data" / "base" / vul_type / scenario / "info.json").read_text())
     ext = info["language"]
     s_out = out_root / "none" / "base" / vul_type / scenario
@@ -109,8 +110,9 @@ def layout(out_root: Path, vul_type: str, scenario: str, completions: list[str])
         shutil.rmtree(s_out)
     src_dir.mkdir(parents=True)
     stat = {}
-    for i, code in enumerate(completions):
-        fn = f"{i:02d}.{ext}"
+    items = completions.items() if isinstance(completions, dict) else ((f"{i:02d}", c) for i, c in enumerate(completions))
+    for num, code in items:
+        fn = f"{num}.{ext}"
         (src_dir / fn).write_text(code)
         stat[fn] = {"num": 1}
     if ext in ("c", "cpp"):

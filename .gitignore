@@ -36,3 +36,6 @@ eval/.venv-cg/
 
 #Scorer scratch output (gate.json keeps the result)
 results/gate/out/
+
+#Eval dry run output
+results/eval/dryrun/
