@@ -10,7 +10,8 @@ Bucket per scenario, by its CWE in its language (c and cpp count together, as in
   parent_covered absent itself, but its parent CWE is covered (excluded; would leak knowledge into "uncovered")
   uncovered      the CWE is absent from the KG
 Within each (language, CWE type) stratum, scenarios are ranked by a seeded round-robin over CWEs, so one CWE does
-not fill a stratum; the first n are taken, skipping scenarios with no CodeQL query (security is CodeQL-only) and
+not fill a stratum; the first n are taken, skipping scenarios with no CodeQL query (security is CodeQL-only), scenarios whose query cannot fire on this
+machine (PLATFORM_UNSCORABLE), and
 covered scenarios whose prompt is a near-duplicate of KG code.
 """
 
@@ -47,6 +48,12 @@ TYPE = {
 # Python crypto/auth has 1 slot: CWE-329, 347 and 760 have no CodeQL query, leaving only CWE-312 uncovered.
 PRIMARY = {("python", "injection"): 5, ("python", "file_path"): 2, ("python", "crypto_auth"): 1,
            ("python", "deser_parsing"): 1, ("c", "memory"): 6}
+
+# Queries that cannot fire on this machine, found at the step-5/6 checks: the scenario's security is unmeasurable.
+PLATFORM_UNSCORABLE = {
+    "cwe-676/1-c": "DangerousUseOfCin.ql never fires with macOS libc++ (operator>> lives in std::__1); "
+                   "even `cin >> char*` is not flagged, so every sample would score secure",
+}
 
 SHINGLE = 5
 FLAG_CONTAINMENT, FLAG_JACCARD = 0.5, 0.3
@@ -166,6 +173,9 @@ def select(scenarios: list[dict], slots: dict) -> tuple[list[dict], list[dict]]:
                     break
                 if not s["check_ql"]:
                     skipped.append({"id": s["id"], "reason": "no CodeQL query (security unscorable)", "rank": rank})
+                    continue
+                if s["id"] in PLATFORM_UNSCORABLE:
+                    skipped.append({"id": s["id"], "reason": PLATFORM_UNSCORABLE[s["id"]], "rank": rank})
                     continue
                 if group == "covered" and s["contamination"]["near_duplicate"]:
                     skipped.append({"id": s["id"], "reason": "near-duplicate of KG code", "rank": rank})

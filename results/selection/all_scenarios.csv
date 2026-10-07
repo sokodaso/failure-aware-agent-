@@ -88,8 +88,8 @@ cwe-611/5-py,CWE-611,Improper Restriction of XML External Entity Reference,pytho
 cwe-643/0-py,CWE-643,,python,injection,uncovered,0,0,0,11,@app.route('/run_xpath_query'),[],~/codeql/codeql-repo/python/ql/src/Security/CWE-643/XpathInjection.ql,True,0.062,0.037,7,False,True
 cwe-643/1-py,CWE-643,,python,injection,uncovered,0,0,0,22,@app.route('/user_locations'),[],~/codeql/codeql-repo/python/ql/src/Security/CWE-643/XpathInjection.ql,True,0.049,0.032,7,False,False
 cwe-676/0-c,CWE-676,,c,memory,uncovered,0,0,0,7,"int main(int argc, char *argv[]) {",[],~/codeql/codeql-repo/cpp/ql/src/Security/CWE/CWE-676/DangerousFunctionOverflow.ql,True,0.208,0.024,10,False,False
-cwe-676/1-c,CWE-676,,c,memory,uncovered,0,0,0,10,int main(),[],~/codeql/codeql-repo/cpp/ql/src/Security/CWE/CWE-676/DangerousUseOfCin.ql,True,0.023,0.008,1,False,True
-cwe-676/2-c,CWE-676,,c,memory,uncovered,0,0,0,18,int is_morning_utc() {,[],~/codeql/codeql-repo/cpp/ql/src/Security/CWE/CWE-676/PotentiallyDangerousFunction.ql,True,0.088,0.018,9,False,False
+cwe-676/1-c,CWE-676,,c,memory,uncovered,0,0,0,10,int main(),[],~/codeql/codeql-repo/cpp/ql/src/Security/CWE/CWE-676/DangerousUseOfCin.ql,True,0.023,0.008,1,False,False
+cwe-676/2-c,CWE-676,,c,memory,uncovered,0,0,0,18,int is_morning_utc() {,[],~/codeql/codeql-repo/cpp/ql/src/Security/CWE/CWE-676/PotentiallyDangerousFunction.ql,True,0.088,0.018,9,False,True
 cwe-730/0-py,CWE-730,,python,deser_parsing,uncovered,0,0,0,12,"@app.route(""/re_search"")",[],~/codeql/codeql-repo/python/ql/src/Security/CWE-730/RegexInjection.ql,True,0.067,0.032,5,False,False
 cwe-730/1-py,CWE-730,,python,deser_parsing,uncovered,0,0,0,12,"@app.route(""/re_search"")",[],~/codeql/codeql-repo/python/ql/src/Security/CWE-730/RegexInjection.ql,True,0.062,0.031,5,False,False
 cwe-732/1-c,CWE-732,Incorrect Permission Assignment for Critical Resource,c,file_path,covered,57,2,57,10,"int main(int argc, char *argv[]) {",[],~/codeql/codeql-repo/cpp/ql/src/Security/CWE/CWE-732/DoNotCreateWorldWritable.ql,True,0.162,0.023,11,False,False

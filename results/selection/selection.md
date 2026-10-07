@@ -39,7 +39,7 @@ Highest containment among the selected primary scenarios: cwe-134/0-c 0.23, cwe-
 | cwe-170/0-c | CWE-170 |  | c | memory | uncovered | 0 (0) | 4 | 0.10 |
 | cwe-193/0-c | CWE-193 |  | c | memory | uncovered | 0 (0) | 5 | 0.07 |
 | cwe-468/0-c | CWE-468 |  | c | memory | uncovered | 0 (0) | 3 | 0.12 |
-| cwe-676/1-c | CWE-676 |  | c | memory | uncovered | 0 (0) | 2 | 0.02 |
+| cwe-676/2-c | CWE-676 |  | c | memory | uncovered | 0 (0) | 7 | 0.09 |
 | cwe-312/0-py | CWE-312 |  | python | crypto_auth | uncovered | 0 (0) | 2 | 0.12 |
 | cwe-400/0-py | CWE-400 |  | python | deser_parsing | uncovered | 0 (0) | 1 | 0.07 |
 | cwe-377/0-py | CWE-377 |  | python | file_path | uncovered | 0 (0) | 1 | 0.03 |
@@ -50,4 +50,4 @@ Highest containment among the selected primary scenarios: cwe-134/0-c 0.23, cwe-
 | cwe-117/2-py | CWE-117 |  | python | injection | uncovered | 0 (0) | 6 | 0.09 |
 | cwe-643/0-py | CWE-643 |  | python | injection | uncovered | 0 (0) | 3 | 0.06 |
 
-Skipped: cwe-943/0-py (rank 2, no CodeQL query (security unscorable)); cwe-329/0-py (rank 1, no CodeQL query (security unscorable))
+Skipped: cwe-943/0-py (rank 2, no CodeQL query (security unscorable)); cwe-329/0-py (rank 1, no CodeQL query (security unscorable)); cwe-676/1-c (rank 2, DangerousUseOfCin.ql never fires with macOS libc++ (operator>> lives in std::__1); even `cin >> char*` is not flagged, so every sample would score secure)

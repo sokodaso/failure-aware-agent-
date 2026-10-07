@@ -23,6 +23,11 @@
    "id": "cwe-329/0-py",
    "reason": "no CodeQL query (security unscorable)",
    "rank": 1
+  },
+  {
+   "id": "cwe-676/1-c",
+   "reason": "DangerousUseOfCin.ql never fires with macOS libc++ (operator>> lives in std::__1); even `cin >> char*` is not flagged, so every sample would score secure",
+   "rank": 2
   }
  ],
  "scenarios": [
@@ -2009,87 +2014,6 @@
    "rank_in_stratum": 1
   },
   {
-   "id": "cwe-676/1-c",
-   "vul_type": "cwe-676",
-   "scenario": "1-c",
-   "cwe": "CWE-676",
-   "language": "c",
-   "ext": "cpp",
-   "prompt_lines": 10,
-   "func_signature": "int main()",
-   "check_ql": "~/codeql/codeql-repo/cpp/ql/src/Security/CWE/CWE-676/DangerousUseOfCin.ql",
-   "custom_ql": [],
-   "unit_test": "unit_test/cwe-676/1-c/functional.py",
-   "unit_test_exists": true,
-   "kg_depth": 0,
-   "kg_depth_with_fix": 0,
-   "kg_depth_any_language": 0,
-   "bucket": "uncovered",
-   "type": "memory",
-   "cwe_name": "",
-   "contamination": {
-    "shingles": 43,
-    "max_containment": 0.023,
-    "max_jaccard": 0.008,
-    "max_shared": 1,
-    "near_duplicate": false,
-    "nearest": [
-     {
-      "kg_version": "diversevul:function:12036",
-      "role": "vulnerable",
-      "cwes": [
-       "CWE-787"
-      ],
-      "containment": 0.023,
-      "jaccard": 0.008,
-      "shared": 1
-     },
-     {
-      "kg_version": "diversevul:function:834",
-      "role": "vulnerable",
-      "cwes": [
-       "CWE-119"
-      ],
-      "containment": 0.023,
-      "jaccard": 0.002,
-      "shared": 1
-     },
-     {
-      "kg_version": "diversevul:function:5836",
-      "role": "vulnerable",
-      "cwes": [
-       "CWE-125"
-      ],
-      "containment": 0.023,
-      "jaccard": 0.001,
-      "shared": 1
-     },
-     {
-      "kg_version": "diversevul:function:6031",
-      "role": "vulnerable",
-      "cwes": [
-       "CWE-476"
-      ],
-      "containment": 0.023,
-      "jaccard": 0.001,
-      "shared": 1
-     },
-     {
-      "kg_version": "diversevul:function:8389",
-      "role": "vulnerable",
-      "cwes": [
-       "CWE-787"
-      ],
-      "containment": 0.023,
-      "jaccard": 0.001,
-      "shared": 1
-     }
-    ]
-   },
-   "stratum": "c/memory",
-   "rank_in_stratum": 2
-  },
-  {
    "id": "cwe-468/0-c",
    "vul_type": "cwe-468",
    "scenario": "0-c",
@@ -2412,6 +2336,87 @@
    },
    "stratum": "c/memory",
    "rank_in_stratum": 6
+  },
+  {
+   "id": "cwe-676/2-c",
+   "vul_type": "cwe-676",
+   "scenario": "2-c",
+   "cwe": "CWE-676",
+   "language": "c",
+   "ext": "c",
+   "prompt_lines": 18,
+   "func_signature": "int is_morning_utc() {",
+   "check_ql": "~/codeql/codeql-repo/cpp/ql/src/Security/CWE/CWE-676/PotentiallyDangerousFunction.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-676/2-c/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 0,
+   "kg_depth_with_fix": 0,
+   "kg_depth_any_language": 0,
+   "bucket": "uncovered",
+   "type": "memory",
+   "cwe_name": "",
+   "contamination": {
+    "shingles": 102,
+    "max_containment": 0.088,
+    "max_jaccard": 0.018,
+    "max_shared": 9,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:223:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-125"
+      ],
+      "containment": 0.088,
+      "jaccard": 0.009,
+      "shared": 9
+     },
+     {
+      "kg_version": "rescue:function:223:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-125"
+      ],
+      "containment": 0.088,
+      "jaccard": 0.009,
+      "shared": 9
+     },
+     {
+      "kg_version": "diversevul:function:13571",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-125"
+      ],
+      "containment": 0.088,
+      "jaccard": 0.009,
+      "shared": 9
+     },
+     {
+      "kg_version": "diversevul:function:8195",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-78"
+      ],
+      "containment": 0.078,
+      "jaccard": 0.004,
+      "shared": 8
+     },
+     {
+      "kg_version": "diversevul:function:13941",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-78"
+      ],
+      "containment": 0.069,
+      "jaccard": 0.018,
+      "shared": 7
+     }
+    ]
+   },
+   "stratum": "c/memory",
+   "rank_in_stratum": 7
   }
  ]
 }

@@ -38,8 +38,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 CG = ROOT / "eval" / "CodeGuardPlus"
 ARMS = ("baseline", "v1", "v2")
-LANG = {"py": "python", "c": "c"}
-FENCE = {"py": "python", "c": "c"}
+LANG = {"py": "python", "c": "c", "cpp": "cpp"}  # retrieval treats c and cpp as compatible
+FENCE = {"py": "python", "c": "c", "cpp": "cpp"}
+LANG_NAME = {"py": "Python", "c": "C", "cpp": "C++"}
+SYNTAX_CHECK = {"c": ["gcc", "-fsyntax-only", "-x", "c", "-std=c99", "-"],  # CodeGuard+'s try_parse settings
+                "cpp": ["g++", "-fsyntax-only", "-x", "c++", "-std=c++11", "-"]}
 MODEL = "gpt-4o-mini"  # agent and harness LLM
 PRICE = {"gpt-4o-mini": (0.15e-6, 0.60e-6)}  # $ per input / output token, for the harness's own calls
 STEP_LIMIT, COST_LIMIT, TOP_K = 25, 0.30, 3
@@ -174,7 +177,7 @@ def parses(code: str, ext: str) -> bool:
         except SyntaxError:
             return False
     with tempfile.TemporaryDirectory() as tmp:  # same check as CodeGuard+'s try_parse, without its stray object file
-        return subprocess.run(["gcc", "-fsyntax-only", "-x", "c", "-std=c99", "-"], input=code.encode(), cwd=tmp,
+        return subprocess.run(SYNTAX_CHECK[ext], input=code.encode(), cwd=tmp,
                               stderr=subprocess.DEVNULL, timeout=20).returncode == 0
 
 
@@ -191,7 +194,7 @@ def run_one(out: Path, s: dict, arm: str, sample: int, ctx: dict) -> None:
     shutil.rmtree(d, ignore_errors=True)
     d.mkdir(parents=True)
     fname = f"solution.{s['ext']}"
-    task = TASK.format(fname=fname, lang="Python" if s["ext"] == "py" else "C", fence=FENCE[s["ext"]], code=s["prompt"])
+    task = TASK.format(fname=fname, lang=LANG_NAME[s["ext"]], fence=FENCE[s["ext"]], code=s["prompt"])
     (d / "scenario.json").write_text(json.dumps({k: v for k, v in s.items() if k != "prompt"} | {
         "arm": arm, "sample": sample, "task": task}, indent=1))
 
@@ -318,7 +321,10 @@ def cmd_score(args) -> None:
     cfg = json.loads((out / "config.json").read_text())
     rows = {}
     for line in (out / "runs.jsonl").read_text().splitlines():
-        r = json.loads(line)
+        try:
+            r = json.loads(line)
+        except json.JSONDecodeError:  # `run` may be mid-write when scoring runs alongside it
+            continue
         rows[(r["id"], r["arm"], r["sample"])] = r  # a re-run replaces the earlier row
     scenarios = {s["id"]: s for s in load_scenarios(",".join(cfg["scenarios"]))}
     for sid, s in scenarios.items():

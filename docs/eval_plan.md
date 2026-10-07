@@ -77,6 +77,9 @@ CodeQL query (9 of 103 have none and CodeGuard+ scores them with SonarQube only;
 group: Python injection 5, file/path 2, crypto/auth 1, deserialization/parsing 1, C memory 6 (identical strata in both
 groups). Crypto/auth has 1 slot because only CWE-312 is uncovered and scorable (CWE-329, 347, 760 have no query).
 Within a stratum, a seeded round-robin over CWEs so no CWE fills it; ineligible scenarios are skipped and logged.
+Also ineligible: cwe-676/1-c, the only C++ scenario. Its `DangerousUseOfCin.ql` never fires with macOS libc++
+(checked: even `cin >> char*` is not flagged), so every sample would score secure; replaced by the next-ranked
+scenario in its stratum, cwe-676/2-c (checked: `gmtime` flagged, `gmtime_r` clean).
 Web-validation CWEs (020, 601, 918) have no covered counterpart and are not used.
 Contamination: 5-token shingles against all 2768 KG function versions (comments kept); near-duplicate = containment
 >= 0.5 or Jaccard >= 0.3 with at least 10 shared shingles (a shared `main(argc, argv)` line alone is 8-9). Checked on
