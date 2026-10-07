@@ -12,7 +12,6 @@ Bucket per scenario, by its CWE in its language (c and cpp count together, as in
 Within each (language, CWE type) stratum, scenarios are ranked by a seeded round-robin over CWEs, so one CWE does
 not fill a stratum; the first n are taken, skipping scenarios with no CodeQL query (security is CodeQL-only) and
 covered scenarios whose prompt is a near-duplicate of KG code.
-The Python-only fallback uses the same ranking, so it contains the primary set's Python scenarios.
 """
 
 import argparse
@@ -48,8 +47,6 @@ TYPE = {
 # Python crypto/auth has 1 slot: CWE-329, 347 and 760 have no CodeQL query, leaving only CWE-312 uncovered.
 PRIMARY = {("python", "injection"): 5, ("python", "file_path"): 2, ("python", "crypto_auth"): 1,
            ("python", "deser_parsing"): 1, ("c", "memory"): 6}
-PYTHON_ONLY = {("python", "injection"): 8, ("python", "file_path"): 2, ("python", "crypto_auth"): 1,
-               ("python", "deser_parsing"): 4}
 
 SHINGLE = 5
 FLAG_CONTAINMENT, FLAG_JACCARD = 0.5, 0.3
@@ -214,23 +211,21 @@ def main() -> None:
         s["contamination"] = contamination(s, kg_code, index)
 
     primary, skipped_p = select(scenarios, PRIMARY)
-    fallback, skipped_f = select(scenarios, PYTHON_ONLY)
-    assert {s["id"] for s in primary if s["language"] == "python"} <= {s["id"] for s in fallback}
 
     strip = lambda s: {k: v for k, v in s.items() if k != "prompt"}  # noqa: E731
     with (args.out / "all_scenarios.csv").open("w", newline="") as f:
         cols = ["id", "cwe", "cwe_name", "language", "type", "bucket", "kg_depth", "kg_depth_with_fix",
                 "kg_depth_any_language", "prompt_lines", "func_signature", "custom_ql", "check_ql", "unit_test_exists"]
-        w = csv.DictWriter(f, cols + ["max_containment", "max_jaccard", "max_shared", "near_duplicate", "in_primary", "in_python_only"])
+        w = csv.DictWriter(f, cols + ["max_containment", "max_jaccard", "max_shared", "near_duplicate", "in_primary"])
         w.writeheader()
-        pids, fids = {s["id"] for s in primary}, {s["id"] for s in fallback}
+        pids = {s["id"] for s in primary}
         for s in scenarios:
             c = s["contamination"]
             w.writerow({**{k: s[k] for k in cols}, "max_containment": c["max_containment"], "max_jaccard": c["max_jaccard"], "max_shared": c["max_shared"],
-                        "near_duplicate": c["near_duplicate"], "in_primary": s["id"] in pids, "in_python_only": s["id"] in fids})
+                        "near_duplicate": c["near_duplicate"], "in_primary": s["id"] in pids})
     (args.out / "contamination.json").write_text(json.dumps(
         {s["id"]: s["contamination"] for s in scenarios}, indent=1))
-    for name, sel, skipped, slots in (("primary", primary, skipped_p, PRIMARY), ("python_only", fallback, skipped_f, PYTHON_ONLY)):
+    for name, sel, skipped, slots in (("primary", primary, skipped_p, PRIMARY),):
         (args.out / f"{name}.json").write_text(json.dumps({
             "seed": SEED, "min_depth": MIN_DEPTH, "shingle": SHINGLE,
             "flag": {"containment": FLAG_CONTAINMENT, "jaccard": FLAG_JACCARD},
@@ -256,9 +251,7 @@ def main() -> None:
             f"{s['id']} {s['contamination']['max_containment']:.2f}"
             for s in sorted(primary, key=lambda s: -s['contamination']['max_containment'])[:5]), "",
         "## Primary (Python + C)", "", *summary_rows(primary), "",
-        "Skipped: " + ("; ".join(f"{x['id']} (rank {x['rank']}, {x['reason']})" for x in skipped_p) or "none"), "",
-        "## Fallback (Python only, if CodeQL C extraction fails)", "", *summary_rows(fallback), "",
-        "Skipped: " + ("; ".join(f"{x['id']} (rank {x['rank']}, {x['reason']})" for x in skipped_f) or "none"),
+        "Skipped: " + ("; ".join(f"{x['id']} (rank {x['rank']}, {x['reason']})" for x in skipped_p) or "none"),
     ]
     (args.out / "selection.md").write_text("\n".join(report) + "\n")
     print("\n".join(report))

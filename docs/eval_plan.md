@@ -71,16 +71,13 @@ Pool, from the 103 local CodeGuard+ base scenarios (the clone has no perturbed s
 - The excluded buckets are the downstream study ("CWE present but language absent" and "shallow"); they are not in the main 30.
 - **Contamination check** on the 15 covered scenarios: nearest-neighbour similarity of the prompt code to the KG's
   code, so near-duplicates are found before running. Replace any near-duplicate with another from the same stratum.
-- If CodeQL's C/C++ extraction does not work on this machine (step 5), use Python only: 15 of 25 covered and 15 of 33
-  uncovered, matched on CWE type. That keeps the comparison valid and avoids the C build.
 
 **Selection (done, `scripts/select_scenarios.py`, logs in `results/selection/`).** Seed 20261006. Eligible: has a
 CodeQL query (9 of 103 have none and CodeGuard+ scores them with SonarQube only; security here is CodeQL only). Per
 group: Python injection 5, file/path 2, crypto/auth 1, deserialization/parsing 1, C memory 6 (identical strata in both
 groups). Crypto/auth has 1 slot because only CWE-312 is uncovered and scorable (CWE-329, 347, 760 have no query).
-Within a stratum, a seeded round-robin over CWEs so no CWE fills it; ineligible scenarios are skipped and logged. The
-Python-only fallback (injection 8, file/path 2, crypto/auth 1, deserialization/parsing 4) uses the same ranking and
-contains the primary Python picks. Web-validation CWEs (020, 601, 918) have no covered counterpart and are not used.
+Within a stratum, a seeded round-robin over CWEs so no CWE fills it; ineligible scenarios are skipped and logged.
+Web-validation CWEs (020, 601, 918) have no covered counterpart and are not used.
 Contamination: 5-token shingles against all 2768 KG function versions (comments kept); near-duplicate = containment
 >= 0.5 or Jaccard >= 0.3 with at least 10 shared shingles (a shared `main(argc, argv)` line alone is 8-9). Checked on
 all 103: none flagged; highest overlap 23 of 268 shingles.
