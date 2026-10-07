@@ -39,3 +39,9 @@ results/gate/out/
 
 #Eval dry run output
 results/eval/dryrun/
+
+#Full-run bulk (kept locally; index.jsonl, summary.csv, config.json and analysis/ are tracked)
+results/eval/main/logs/
+results/eval/main/completions/
+results/eval/main/scoring/
+results/eval/main/runs.jsonl
