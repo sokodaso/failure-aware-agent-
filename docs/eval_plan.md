@@ -59,8 +59,9 @@ Pool, from the 103 local CodeGuard+ base scenarios (the clone has no perturbed s
 | Bucket (CWE in the scenario's language) | Python | C |
 |---|---|---|
 | Covered: >= 5 KG examples for that CWE and language | 25 | 20 |
-| Uncovered: CWE absent from the KG | 33 | 12 |
+| Uncovered: CWE absent from the KG | 33 | 8 |
 | Excluded from the 30: CWE present but language absent (7 py), shallow 1-4 examples (6 py) | 13 | 0 |
+| Excluded from the 30: parent covered (CWE-120, CWE-121 are ChildOf CWE-119, 103 C examples) | 0 | 4 |
 
 - "Covered" is defined by KG contents, **not** by whether retrieval succeeded, so the result is not built in. Retrieval
   success is measured later as a mediator.
@@ -72,6 +73,15 @@ Pool, from the 103 local CodeGuard+ base scenarios (the clone has no perturbed s
   code, so near-duplicates are found before running. Replace any near-duplicate with another from the same stratum.
 - If CodeQL's C/C++ extraction does not work on this machine (step 5), use Python only: 15 of 25 covered and 15 of 33
   uncovered, matched on CWE type. That keeps the comparison valid and avoids the C build.
+
+**Selection (done, `scripts/select_scenarios.py`, logs in `results/selection/`).** Seed 20261006. Per group:
+Python injection 4, file/path 2, crypto/auth 2, deserialization/parsing 1, C memory 6 (identical strata in both
+groups). Within a stratum, a seeded round-robin over CWEs so no CWE fills it. The Python-only fallback (injection 7,
+file/path 2, crypto/auth 3, deserialization/parsing 3) uses the same ranking and contains the primary Python picks.
+Web-validation CWEs (020, 601, 918) have no covered counterpart and are not used. Contamination: 5-token shingles
+against all 2768 KG function versions (comments kept); near-duplicate = containment >= 0.5 or Jaccard >= 0.3 with at
+least 10 shared shingles (a shared `main(argc, argv)` line alone is 8-9). Checked on all 103: none flagged; highest
+overlap 23 of 268 shingles.
 
 ## 5. Evaluator and adapter
 
@@ -131,7 +141,7 @@ Run order is interleaved by scenario so an outage affects all arms equally. Resu
 1. Review this plan.
 2. Commit the current state, then remove v3 (section 3, step 1).
 3. Tighten the FMEA and drop APIs from v2 retrieval; tests; commit; tag `eval-freeze`.
-4. Select and log the 30 scenarios, including the contamination check. **Stop for review.** ( Extensive logs inorder to improve design and )
+4. Select and log the 30 scenarios, including the contamination check. **Stop for review.** ( Extensive logs inorder to improve design transperancy and iteration on system design)
 5. CodeQL setup and the stock-scoring gate.
 6. Adapter, then a 2-scenario dry run on all three arms (cost cap, output format) with scenarios outside the 30.
 7. Full run, then scoring and write-up.

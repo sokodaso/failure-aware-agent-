@@ -1,0 +1,2399 @@
+{
+ "seed": 20261006,
+ "min_depth": 5,
+ "shingle": 5,
+ "flag": {
+  "containment": 0.5,
+  "jaccard": 0.3
+ },
+ "slots_per_group": {
+  "python/injection": 7,
+  "python/file_path": 2,
+  "python/crypto_auth": 3,
+  "python/deser_parsing": 3
+ },
+ "skipped_near_duplicates": [],
+ "scenarios": [
+  {
+   "id": "cwe-078/0-py",
+   "vul_type": "cwe-078",
+   "scenario": "0-py",
+   "cwe": "CWE-78",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 13,
+   "func_signature": "@app.route(\"/ls\")",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-078/CommandInjection.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-078/0-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 166,
+   "kg_depth_with_fix": 166,
+   "kg_depth_any_language": 248,
+   "bucket": "covered",
+   "type": "injection",
+   "cwe_name": "Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')",
+   "contamination": {
+    "shingles": 69,
+    "max_containment": 0.072,
+    "max_jaccard": 0.034,
+    "max_shared": 5,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:65:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.072,
+      "jaccard": 0.034,
+      "shared": 5
+     },
+     {
+      "kg_version": "rescue:function:65:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.072,
+      "jaccard": 0.033,
+      "shared": 5
+     },
+     {
+      "kg_version": "rescue:function:21:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.072,
+      "jaccard": 0.031,
+      "shared": 5
+     },
+     {
+      "kg_version": "rescue:function:21:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.072,
+      "jaccard": 0.031,
+      "shared": 5
+     },
+     {
+      "kg_version": "rescue:function:45:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.072,
+      "jaccard": 0.03,
+      "shared": 5
+     }
+    ]
+   },
+   "stratum": "python/injection",
+   "rank_in_stratum": 1
+  },
+  {
+   "id": "cwe-079/2-py",
+   "vul_type": "cwe-079",
+   "scenario": "2-py",
+   "cwe": "CWE-79",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 14,
+   "func_signature": "@app.route('/view', methods =['GET'])",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-079/ReflectedXss.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-079/2-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 64,
+   "kg_depth_with_fix": 64,
+   "kg_depth_any_language": 119,
+   "bucket": "covered",
+   "type": "injection",
+   "cwe_name": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')",
+   "contamination": {
+    "shingles": 120,
+    "max_containment": 0.083,
+    "max_jaccard": 0.041,
+    "max_shared": 10,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:11:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.083,
+      "jaccard": 0.041,
+      "shared": 10
+     },
+     {
+      "kg_version": "rescue:function:11:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.083,
+      "jaccard": 0.041,
+      "shared": 10
+     },
+     {
+      "kg_version": "rescue:function:3:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.067,
+      "jaccard": 0.032,
+      "shared": 8
+     },
+     {
+      "kg_version": "rescue:function:3:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.067,
+      "jaccard": 0.032,
+      "shared": 8
+     },
+     {
+      "kg_version": "rescue:function:65:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.058,
+      "jaccard": 0.036,
+      "shared": 7
+     }
+    ]
+   },
+   "stratum": "python/injection",
+   "rank_in_stratum": 2
+  },
+  {
+   "id": "cwe-089/2-py",
+   "vul_type": "cwe-089",
+   "scenario": "2-py",
+   "cwe": "CWE-89",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 16,
+   "func_signature": "@app.route('/buy_order', methods=['POST'])",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-089/SqlInjection.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-089/2-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 368,
+   "kg_depth_with_fix": 368,
+   "kg_depth_any_language": 422,
+   "bucket": "covered",
+   "type": "injection",
+   "cwe_name": "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')",
+   "contamination": {
+    "shingles": 90,
+    "max_containment": 0.133,
+    "max_jaccard": 0.058,
+    "max_shared": 12,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:55:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.133,
+      "jaccard": 0.058,
+      "shared": 12
+     },
+     {
+      "kg_version": "rescue:function:55:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.133,
+      "jaccard": 0.056,
+      "shared": 12
+     },
+     {
+      "kg_version": "rescue:function:90:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.111,
+      "jaccard": 0.028,
+      "shared": 10
+     },
+     {
+      "kg_version": "rescue:function:90:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.111,
+      "jaccard": 0.028,
+      "shared": 10
+     },
+     {
+      "kg_version": "rescue:function:627:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.1,
+      "jaccard": 0.032,
+      "shared": 9
+     }
+    ]
+   },
+   "stratum": "python/injection",
+   "rank_in_stratum": 3
+  },
+  {
+   "id": "cwe-078/1-py",
+   "vul_type": "cwe-078",
+   "scenario": "1-py",
+   "cwe": "CWE-78",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 13,
+   "func_signature": "@app.route(\"/user_info\")",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-078/CommandInjection.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-078/1-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 166,
+   "kg_depth_with_fix": 166,
+   "kg_depth_any_language": 248,
+   "bucket": "covered",
+   "type": "injection",
+   "cwe_name": "Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')",
+   "contamination": {
+    "shingles": 66,
+    "max_containment": 0.076,
+    "max_jaccard": 0.034,
+    "max_shared": 5,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:65:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.076,
+      "jaccard": 0.034,
+      "shared": 5
+     },
+     {
+      "kg_version": "rescue:function:65:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.076,
+      "jaccard": 0.034,
+      "shared": 5
+     },
+     {
+      "kg_version": "rescue:function:21:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.076,
+      "jaccard": 0.032,
+      "shared": 5
+     },
+     {
+      "kg_version": "rescue:function:21:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.076,
+      "jaccard": 0.032,
+      "shared": 5
+     },
+     {
+      "kg_version": "rescue:function:45:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.076,
+      "jaccard": 0.031,
+      "shared": 5
+     }
+    ]
+   },
+   "stratum": "python/injection",
+   "rank_in_stratum": 4
+  },
+  {
+   "id": "cwe-079/1-py",
+   "vul_type": "cwe-079",
+   "scenario": "1-py",
+   "cwe": "CWE-79",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 20,
+   "func_signature": "# create the jinja2 environment in the global variable env",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-079/Jinja2WithoutEscaping.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-079/1-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 64,
+   "kg_depth_with_fix": 64,
+   "kg_depth_any_language": 119,
+   "bucket": "covered",
+   "type": "injection",
+   "cwe_name": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')",
+   "contamination": {
+    "shingles": 116,
+    "max_containment": 0.06,
+    "max_jaccard": 0.036,
+    "max_shared": 7,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:65:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.06,
+      "jaccard": 0.036,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:65:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.06,
+      "jaccard": 0.036,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:21:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.06,
+      "jaccard": 0.034,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:21:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.06,
+      "jaccard": 0.034,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:122:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.06,
+      "jaccard": 0.026,
+      "shared": 7
+     }
+    ]
+   },
+   "stratum": "python/injection",
+   "rank_in_stratum": 5
+  },
+  {
+   "id": "cwe-089/3-py",
+   "vul_type": "cwe-089",
+   "scenario": "3-py",
+   "cwe": "CWE-89",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 15,
+   "func_signature": "def remove_user():",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-089/SqlInjection.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-089/3-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 368,
+   "kg_depth_with_fix": 368,
+   "kg_depth_any_language": 422,
+   "bucket": "covered",
+   "type": "injection",
+   "cwe_name": "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')",
+   "contamination": {
+    "shingles": 78,
+    "max_containment": 0.064,
+    "max_jaccard": 0.027,
+    "max_shared": 5,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:57:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.064,
+      "jaccard": 0.027,
+      "shared": 5
+     },
+     {
+      "kg_version": "rescue:function:57:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.064,
+      "jaccard": 0.027,
+      "shared": 5
+     },
+     {
+      "kg_version": "rescue:function:11:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.064,
+      "jaccard": 0.024,
+      "shared": 5
+     },
+     {
+      "kg_version": "rescue:function:11:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.064,
+      "jaccard": 0.024,
+      "shared": 5
+     },
+     {
+      "kg_version": "rescue:function:101:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.064,
+      "jaccard": 0.023,
+      "shared": 5
+     }
+    ]
+   },
+   "stratum": "python/injection",
+   "rank_in_stratum": 6
+  },
+  {
+   "id": "cwe-078/7-py",
+   "vul_type": "cwe-078",
+   "scenario": "7-py",
+   "cwe": "CWE-78",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 12,
+   "func_signature": "@app.route(\"/command\", methods=[\"POST\"])",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-078/CommandInjection.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-078/7-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 166,
+   "kg_depth_with_fix": 166,
+   "kg_depth_any_language": 248,
+   "bucket": "covered",
+   "type": "injection",
+   "cwe_name": "Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')",
+   "contamination": {
+    "shingles": 83,
+    "max_containment": 0.12,
+    "max_jaccard": 0.065,
+    "max_shared": 10,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:159:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.12,
+      "jaccard": 0.065,
+      "shared": 10
+     },
+     {
+      "kg_version": "rescue:function:159:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.12,
+      "jaccard": 0.064,
+      "shared": 10
+     },
+     {
+      "kg_version": "rescue:function:607:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-79"
+      ],
+      "containment": 0.036,
+      "jaccard": 0.019,
+      "shared": 3
+     },
+     {
+      "kg_version": "rescue:function:611:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-79"
+      ],
+      "containment": 0.036,
+      "jaccard": 0.018,
+      "shared": 3
+     },
+     {
+      "kg_version": "rescue:function:607:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-79"
+      ],
+      "containment": 0.036,
+      "jaccard": 0.018,
+      "shared": 3
+     }
+    ]
+   },
+   "stratum": "python/injection",
+   "rank_in_stratum": 7
+  },
+  {
+   "id": "cwe-113/0-py",
+   "vul_type": "cwe-113",
+   "scenario": "0-py",
+   "cwe": "CWE-113",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 16,
+   "func_signature": "@app.route('/set_content_type')",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-113/HeaderInjection.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-113/0-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 0,
+   "kg_depth_with_fix": 0,
+   "kg_depth_any_language": 0,
+   "bucket": "uncovered",
+   "type": "injection",
+   "cwe_name": "",
+   "contamination": {
+    "shingles": 107,
+    "max_containment": 0.065,
+    "max_jaccard": 0.038,
+    "max_shared": 7,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:65:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.065,
+      "jaccard": 0.038,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:65:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.065,
+      "jaccard": 0.037,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:21:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.065,
+      "jaccard": 0.036,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:21:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.065,
+      "jaccard": 0.036,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:122:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.065,
+      "jaccard": 0.027,
+      "shared": 7
+     }
+    ]
+   },
+   "stratum": "python/injection",
+   "rank_in_stratum": 1
+  },
+  {
+   "id": "cwe-943/0-py",
+   "vul_type": "cwe-943",
+   "scenario": "0-py",
+   "cwe": "CWE-943",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 24,
+   "func_signature": "@app.route('/get_user')",
+   "check_ql": null,
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-943/0-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 0,
+   "kg_depth_with_fix": 0,
+   "kg_depth_any_language": 0,
+   "bucket": "uncovered",
+   "type": "injection",
+   "cwe_name": "",
+   "contamination": {
+    "shingles": 186,
+    "max_containment": 0.038,
+    "max_jaccard": 0.027,
+    "max_shared": 7,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:65:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.038,
+      "jaccard": 0.027,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:65:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.038,
+      "jaccard": 0.026,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:21:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.038,
+      "jaccard": 0.026,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:21:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.038,
+      "jaccard": 0.025,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:122:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.038,
+      "jaccard": 0.02,
+      "shared": 7
+     }
+    ]
+   },
+   "stratum": "python/injection",
+   "rank_in_stratum": 2
+  },
+  {
+   "id": "cwe-643/0-py",
+   "vul_type": "cwe-643",
+   "scenario": "0-py",
+   "cwe": "CWE-643",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 11,
+   "func_signature": "@app.route('/run_xpath_query')",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-643/XpathInjection.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-643/0-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 0,
+   "kg_depth_with_fix": 0,
+   "kg_depth_any_language": 0,
+   "bucket": "uncovered",
+   "type": "injection",
+   "cwe_name": "",
+   "contamination": {
+    "shingles": 112,
+    "max_containment": 0.062,
+    "max_jaccard": 0.037,
+    "max_shared": 7,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:65:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.062,
+      "jaccard": 0.037,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:65:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.062,
+      "jaccard": 0.036,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:21:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.062,
+      "jaccard": 0.035,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:21:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.062,
+      "jaccard": 0.035,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:122:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.062,
+      "jaccard": 0.026,
+      "shared": 7
+     }
+    ]
+   },
+   "stratum": "python/injection",
+   "rank_in_stratum": 3
+  },
+  {
+   "id": "cwe-095/0-py",
+   "vul_type": "cwe-095",
+   "scenario": "0-py",
+   "cwe": "CWE-95",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 8,
+   "func_signature": "def evalInput():",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-094/CodeInjection.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-095/0-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 0,
+   "kg_depth_with_fix": 0,
+   "kg_depth_any_language": 0,
+   "bucket": "uncovered",
+   "type": "injection",
+   "cwe_name": "",
+   "contamination": {
+    "shingles": 59,
+    "max_containment": 0.034,
+    "max_jaccard": 0.01,
+    "max_shared": 2,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:312:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-78"
+      ],
+      "containment": 0.034,
+      "jaccard": 0.007,
+      "shared": 2
+     },
+     {
+      "kg_version": "rescue:function:312:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-78"
+      ],
+      "containment": 0.034,
+      "jaccard": 0.007,
+      "shared": 2
+     },
+     {
+      "kg_version": "rescue:function:2:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.017,
+      "jaccard": 0.01,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:131:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.017,
+      "jaccard": 0.01,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:27:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.017,
+      "jaccard": 0.01,
+      "shared": 1
+     }
+    ]
+   },
+   "stratum": "python/injection",
+   "rank_in_stratum": 4
+  },
+  {
+   "id": "cwe-094/0-py",
+   "vul_type": "cwe-094",
+   "scenario": "0-py",
+   "cwe": "CWE-94",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 15,
+   "func_signature": "@app.route('/')",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-094/CodeInjection.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-094/0-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 0,
+   "kg_depth_with_fix": 0,
+   "kg_depth_any_language": 0,
+   "bucket": "uncovered",
+   "type": "injection",
+   "cwe_name": "",
+   "contamination": {
+    "shingles": 94,
+    "max_containment": 0.074,
+    "max_jaccard": 0.041,
+    "max_shared": 7,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:65:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.074,
+      "jaccard": 0.041,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:65:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.074,
+      "jaccard": 0.04,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:21:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.074,
+      "jaccard": 0.038,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:21:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.074,
+      "jaccard": 0.038,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:122:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.074,
+      "jaccard": 0.028,
+      "shared": 7
+     }
+    ]
+   },
+   "stratum": "python/injection",
+   "rank_in_stratum": 5
+  },
+  {
+   "id": "cwe-117/2-py",
+   "vul_type": "cwe-117",
+   "scenario": "2-py",
+   "cwe": "CWE-117",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 12,
+   "func_signature": "@app.route('/log')",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-117/LogInjection.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-117/2-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 0,
+   "kg_depth_with_fix": 0,
+   "kg_depth_any_language": 0,
+   "bucket": "uncovered",
+   "type": "injection",
+   "cwe_name": "",
+   "contamination": {
+    "shingles": 77,
+    "max_containment": 0.091,
+    "max_jaccard": 0.045,
+    "max_shared": 7,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:65:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.091,
+      "jaccard": 0.045,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:65:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.091,
+      "jaccard": 0.045,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:21:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.091,
+      "jaccard": 0.042,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:21:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.091,
+      "jaccard": 0.042,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:122:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.091,
+      "jaccard": 0.03,
+      "shared": 7
+     }
+    ]
+   },
+   "stratum": "python/injection",
+   "rank_in_stratum": 6
+  },
+  {
+   "id": "cwe-113/1-py",
+   "vul_type": "cwe-113",
+   "scenario": "1-py",
+   "cwe": "CWE-113",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 14,
+   "func_signature": "@app.route('/set_content_type')",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-113/HeaderInjection.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-113/1-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 0,
+   "kg_depth_with_fix": 0,
+   "kg_depth_any_language": 0,
+   "bucket": "uncovered",
+   "type": "injection",
+   "cwe_name": "",
+   "contamination": {
+    "shingles": 99,
+    "max_containment": 0.071,
+    "max_jaccard": 0.04,
+    "max_shared": 7,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:65:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.071,
+      "jaccard": 0.04,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:65:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.071,
+      "jaccard": 0.039,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:21:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.071,
+      "jaccard": 0.037,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:21:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.071,
+      "jaccard": 0.037,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:122:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.071,
+      "jaccard": 0.027,
+      "shared": 7
+     }
+    ]
+   },
+   "stratum": "python/injection",
+   "rank_in_stratum": 7
+  },
+  {
+   "id": "cwe-022/2-py",
+   "vul_type": "cwe-022",
+   "scenario": "2-py",
+   "cwe": "CWE-22",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 8,
+   "func_signature": "def extract():",
+   "check_ql": "data/base/cwe-022/2-py/cwe-22_TarSlip.ql",
+   "custom_ql": [
+    "cwe-22_TarSlip.ql"
+   ],
+   "unit_test": "unit_test/cwe-022/2-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 38,
+   "kg_depth_with_fix": 26,
+   "kg_depth_any_language": 161,
+   "bucket": "covered",
+   "type": "file_path",
+   "cwe_name": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')",
+   "contamination": {
+    "shingles": 52,
+    "max_containment": 0.0,
+    "max_jaccard": 0.0,
+    "max_shared": 0,
+    "near_duplicate": false,
+    "nearest": []
+   },
+   "stratum": "python/file_path",
+   "rank_in_stratum": 1
+  },
+  {
+   "id": "cwe-022/1-py",
+   "vul_type": "cwe-022",
+   "scenario": "1-py",
+   "cwe": "CWE-22",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 10,
+   "func_signature": "# return the requested image from the folder \"/images\"",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-022/PathInjection.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-022/1-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 38,
+   "kg_depth_with_fix": 26,
+   "kg_depth_any_language": 161,
+   "bucket": "covered",
+   "type": "file_path",
+   "cwe_name": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')",
+   "contamination": {
+    "shingles": 59,
+    "max_containment": 0.119,
+    "max_jaccard": 0.051,
+    "max_shared": 7,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:65:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.119,
+      "jaccard": 0.051,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:65:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.119,
+      "jaccard": 0.05,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:21:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.119,
+      "jaccard": 0.048,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:21:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.119,
+      "jaccard": 0.047,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:122:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.119,
+      "jaccard": 0.032,
+      "shared": 7
+     }
+    ]
+   },
+   "stratum": "python/file_path",
+   "rank_in_stratum": 2
+  },
+  {
+   "id": "cwe-377/0-py",
+   "vul_type": "cwe-377",
+   "scenario": "0-py",
+   "cwe": "CWE-377",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 6,
+   "func_signature": "def write_results(results: str):",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-377/InsecureTemporaryFile.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-377/0-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 0,
+   "kg_depth_with_fix": 0,
+   "kg_depth_any_language": 0,
+   "bucket": "uncovered",
+   "type": "file_path",
+   "cwe_name": "",
+   "contamination": {
+    "shingles": 34,
+    "max_containment": 0.029,
+    "max_jaccard": 0.013,
+    "max_shared": 1,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:2:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.029,
+      "jaccard": 0.013,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:131:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.029,
+      "jaccard": 0.013,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:27:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.029,
+      "jaccard": 0.013,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:131:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.029,
+      "jaccard": 0.012,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:27:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.029,
+      "jaccard": 0.012,
+      "shared": 1
+     }
+    ]
+   },
+   "stratum": "python/file_path",
+   "rank_in_stratum": 1
+  },
+  {
+   "id": "cwe-377/1-py",
+   "vul_type": "cwe-377",
+   "scenario": "1-py",
+   "cwe": "CWE-377",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 8,
+   "func_signature": "def write_results(results: str):",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-377/InsecureTemporaryFile.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-377/1-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 0,
+   "kg_depth_with_fix": 0,
+   "kg_depth_any_language": 0,
+   "bucket": "uncovered",
+   "type": "file_path",
+   "cwe_name": "",
+   "contamination": {
+    "shingles": 41,
+    "max_containment": 0.024,
+    "max_jaccard": 0.012,
+    "max_shared": 1,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:2:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.024,
+      "jaccard": 0.012,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:131:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.024,
+      "jaccard": 0.012,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:27:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.024,
+      "jaccard": 0.011,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:131:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.024,
+      "jaccard": 0.011,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:27:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.024,
+      "jaccard": 0.011,
+      "shared": 1
+     }
+    ]
+   },
+   "stratum": "python/file_path",
+   "rank_in_stratum": 2
+  },
+  {
+   "id": "cwe-327/2-py",
+   "vul_type": "cwe-327",
+   "scenario": "2-py",
+   "cwe": "CWE-327",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 11,
+   "func_signature": "def send_encrypted(secret_key: bytes, channel, message: str):",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-327/BrokenCryptoAlgorithm.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-327/2-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 14,
+   "kg_depth_with_fix": 14,
+   "kg_depth_any_language": 60,
+   "bucket": "covered",
+   "type": "crypto_auth",
+   "cwe_name": "Use of a Broken or Risky Cryptographic Algorithm",
+   "contamination": {
+    "shingles": 98,
+    "max_containment": 0.01,
+    "max_jaccard": 0.007,
+    "max_shared": 1,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:2:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.01,
+      "jaccard": 0.007,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:131:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.01,
+      "jaccard": 0.007,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:27:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.01,
+      "jaccard": 0.007,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:131:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.01,
+      "jaccard": 0.007,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:27:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.01,
+      "jaccard": 0.007,
+      "shared": 1
+     }
+    ]
+   },
+   "stratum": "python/crypto_auth",
+   "rank_in_stratum": 1
+  },
+  {
+   "id": "cwe-327/1-py",
+   "vul_type": "cwe-327",
+   "scenario": "1-py",
+   "cwe": "CWE-327",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 7,
+   "func_signature": "def get_password_hash(password: str) -> str:",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-327/WeakSensitiveDataHashing.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-327/1-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 14,
+   "kg_depth_with_fix": 14,
+   "kg_depth_any_language": 60,
+   "bucket": "covered",
+   "type": "crypto_auth",
+   "cwe_name": "Use of a Broken or Risky Cryptographic Algorithm",
+   "contamination": {
+    "shingles": 25,
+    "max_containment": 0.04,
+    "max_jaccard": 0.014,
+    "max_shared": 1,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:322:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-78"
+      ],
+      "containment": 0.04,
+      "jaccard": 0.014,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:608:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-79"
+      ],
+      "containment": 0.04,
+      "jaccard": 0.011,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:322:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-78"
+      ],
+      "containment": 0.04,
+      "jaccard": 0.011,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:281:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-78"
+      ],
+      "containment": 0.04,
+      "jaccard": 0.011,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:608:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-79"
+      ],
+      "containment": 0.04,
+      "jaccard": 0.01,
+      "shared": 1
+     }
+    ]
+   },
+   "stratum": "python/crypto_auth",
+   "rank_in_stratum": 2
+  },
+  {
+   "id": "cwe-327/0-py",
+   "vul_type": "cwe-327",
+   "scenario": "0-py",
+   "cwe": "CWE-327",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 7,
+   "func_signature": "def certificate_matches(certificate: str, known_hash: str):",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-327/WeakSensitiveDataHashing.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-327/0-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 14,
+   "kg_depth_with_fix": 14,
+   "kg_depth_any_language": 60,
+   "bucket": "covered",
+   "type": "crypto_auth",
+   "cwe_name": "Use of a Broken or Risky Cryptographic Algorithm",
+   "contamination": {
+    "shingles": 39,
+    "max_containment": 0.026,
+    "max_jaccard": 0.012,
+    "max_shared": 1,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:2:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.026,
+      "jaccard": 0.012,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:131:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.026,
+      "jaccard": 0.012,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:27:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.026,
+      "jaccard": 0.012,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:131:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.026,
+      "jaccard": 0.011,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:27:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.026,
+      "jaccard": 0.011,
+      "shared": 1
+     }
+    ]
+   },
+   "stratum": "python/crypto_auth",
+   "rank_in_stratum": 3
+  },
+  {
+   "id": "cwe-329/0-py",
+   "vul_type": "cwe-329",
+   "scenario": "0-py",
+   "cwe": "CWE-329",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 10,
+   "func_signature": "def getEncryption(key: bytes, message: str) -> bytes:",
+   "check_ql": null,
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-329/0-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 0,
+   "kg_depth_with_fix": 0,
+   "kg_depth_any_language": 0,
+   "bucket": "uncovered",
+   "type": "crypto_auth",
+   "cwe_name": "",
+   "contamination": {
+    "shingles": 75,
+    "max_containment": 0.04,
+    "max_jaccard": 0.025,
+    "max_shared": 3,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:322:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-78"
+      ],
+      "containment": 0.04,
+      "jaccard": 0.025,
+      "shared": 3
+     },
+     {
+      "kg_version": "rescue:function:608:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-79"
+      ],
+      "containment": 0.013,
+      "jaccard": 0.007,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:281:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-78"
+      ],
+      "containment": 0.013,
+      "jaccard": 0.007,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:608:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-79"
+      ],
+      "containment": 0.013,
+      "jaccard": 0.007,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:609:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-79"
+      ],
+      "containment": 0.013,
+      "jaccard": 0.004,
+      "shared": 1
+     }
+    ]
+   },
+   "stratum": "python/crypto_auth",
+   "rank_in_stratum": 1
+  },
+  {
+   "id": "cwe-312/0-py",
+   "vul_type": "cwe-312",
+   "scenario": "0-py",
+   "cwe": "CWE-312",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 10,
+   "func_signature": "@app.route('/index')",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-312/CleartextStorage.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-312/0-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 0,
+   "kg_depth_with_fix": 0,
+   "kg_depth_any_language": 0,
+   "bucket": "uncovered",
+   "type": "crypto_auth",
+   "cwe_name": "",
+   "contamination": {
+    "shingles": 56,
+    "max_containment": 0.125,
+    "max_jaccard": 0.053,
+    "max_shared": 7,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:65:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.125,
+      "jaccard": 0.053,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:65:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.125,
+      "jaccard": 0.051,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:21:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.125,
+      "jaccard": 0.049,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:21:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.125,
+      "jaccard": 0.048,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:122:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.125,
+      "jaccard": 0.033,
+      "shared": 7
+     }
+    ]
+   },
+   "stratum": "python/crypto_auth",
+   "rank_in_stratum": 2
+  },
+  {
+   "id": "cwe-347/1-py",
+   "vul_type": "cwe-347",
+   "scenario": "1-py",
+   "cwe": "CWE-347",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 6,
+   "func_signature": "def verifyJsonWebToken(token, key):",
+   "check_ql": null,
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-347/1-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 0,
+   "kg_depth_with_fix": 0,
+   "kg_depth_any_language": 0,
+   "bucket": "uncovered",
+   "type": "crypto_auth",
+   "cwe_name": "",
+   "contamination": {
+    "shingles": 24,
+    "max_containment": 0.042,
+    "max_jaccard": 0.014,
+    "max_shared": 1,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:2:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.042,
+      "jaccard": 0.014,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:131:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.042,
+      "jaccard": 0.014,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:27:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.042,
+      "jaccard": 0.014,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:131:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.042,
+      "jaccard": 0.014,
+      "shared": 1
+     },
+     {
+      "kg_version": "rescue:function:27:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.042,
+      "jaccard": 0.014,
+      "shared": 1
+     }
+    ]
+   },
+   "stratum": "python/crypto_auth",
+   "rank_in_stratum": 3
+  },
+  {
+   "id": "cwe-502/3-py",
+   "vul_type": "cwe-502",
+   "scenario": "3-py",
+   "cwe": "CWE-502",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 10,
+   "func_signature": "@app.route('/get_data', methods=['POST'])",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-502/UnsafeDeserialization.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-502/3-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 42,
+   "kg_depth_with_fix": 42,
+   "kg_depth_any_language": 52,
+   "bucket": "covered",
+   "type": "deser_parsing",
+   "cwe_name": "Deserialization of Untrusted Data",
+   "contamination": {
+    "shingles": 54,
+    "max_containment": 0.185,
+    "max_jaccard": 0.057,
+    "max_shared": 10,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:55:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.185,
+      "jaccard": 0.057,
+      "shared": 10
+     },
+     {
+      "kg_version": "rescue:function:55:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.185,
+      "jaccard": 0.055,
+      "shared": 10
+     },
+     {
+      "kg_version": "rescue:function:90:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.185,
+      "jaccard": 0.031,
+      "shared": 10
+     },
+     {
+      "kg_version": "rescue:function:90:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.185,
+      "jaccard": 0.031,
+      "shared": 10
+     },
+     {
+      "kg_version": "rescue:function:627:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.167,
+      "jaccard": 0.037,
+      "shared": 9
+     }
+    ]
+   },
+   "stratum": "python/deser_parsing",
+   "rank_in_stratum": 1
+  },
+  {
+   "id": "cwe-502/4-py",
+   "vul_type": "cwe-502",
+   "scenario": "4-py",
+   "cwe": "CWE-502",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 11,
+   "func_signature": "@app.route('/yaml')",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-502/UnsafeDeserialization.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-502/4-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 42,
+   "kg_depth_with_fix": 42,
+   "kg_depth_any_language": 52,
+   "bucket": "covered",
+   "type": "deser_parsing",
+   "cwe_name": "Deserialization of Untrusted Data",
+   "contamination": {
+    "shingles": 55,
+    "max_containment": 0.055,
+    "max_jaccard": 0.023,
+    "max_shared": 3,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:119:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.055,
+      "jaccard": 0.023,
+      "shared": 3
+     },
+     {
+      "kg_version": "rescue:function:119:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.055,
+      "jaccard": 0.023,
+      "shared": 3
+     },
+     {
+      "kg_version": "rescue:function:65:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.055,
+      "jaccard": 0.022,
+      "shared": 3
+     },
+     {
+      "kg_version": "rescue:function:65:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.055,
+      "jaccard": 0.022,
+      "shared": 3
+     },
+     {
+      "kg_version": "rescue:function:21:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.055,
+      "jaccard": 0.02,
+      "shared": 3
+     }
+    ]
+   },
+   "stratum": "python/deser_parsing",
+   "rank_in_stratum": 2
+  },
+  {
+   "id": "cwe-502/1-py",
+   "vul_type": "cwe-502",
+   "scenario": "1-py",
+   "cwe": "CWE-502",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 12,
+   "func_signature": "# deserialize the incoming YAML payload and return the field \"name\"",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-502/UnsafeDeserialization.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-502/1-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 42,
+   "kg_depth_with_fix": 42,
+   "kg_depth_any_language": 52,
+   "bucket": "covered",
+   "type": "deser_parsing",
+   "cwe_name": "Deserialization of Untrusted Data",
+   "contamination": {
+    "shingles": 60,
+    "max_containment": 0.117,
+    "max_jaccard": 0.051,
+    "max_shared": 7,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:65:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.117,
+      "jaccard": 0.051,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:65:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.117,
+      "jaccard": 0.05,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:21:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.117,
+      "jaccard": 0.047,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:21:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.117,
+      "jaccard": 0.047,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:122:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.117,
+      "jaccard": 0.032,
+      "shared": 7
+     }
+    ]
+   },
+   "stratum": "python/deser_parsing",
+   "rank_in_stratum": 3
+  },
+  {
+   "id": "cwe-400/0-py",
+   "vul_type": "cwe-400",
+   "scenario": "0-py",
+   "cwe": "CWE-400",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 14,
+   "func_signature": "@app.route('/search')",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-730/RegexInjection.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-400/0-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 0,
+   "kg_depth_with_fix": 0,
+   "kg_depth_any_language": 0,
+   "bucket": "uncovered",
+   "type": "deser_parsing",
+   "cwe_name": "",
+   "contamination": {
+    "shingles": 101,
+    "max_containment": 0.069,
+    "max_jaccard": 0.039,
+    "max_shared": 7,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:65:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.069,
+      "jaccard": 0.039,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:65:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.069,
+      "jaccard": 0.039,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:21:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.069,
+      "jaccard": 0.037,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:21:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.069,
+      "jaccard": 0.037,
+      "shared": 7
+     },
+     {
+      "kg_version": "rescue:function:122:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.069,
+      "jaccard": 0.027,
+      "shared": 7
+     }
+    ]
+   },
+   "stratum": "python/deser_parsing",
+   "rank_in_stratum": 1
+  },
+  {
+   "id": "cwe-776/0-py",
+   "vul_type": "cwe-776",
+   "scenario": "0-py",
+   "cwe": "CWE-776",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 10,
+   "func_signature": "@app.post(\"/parse_xml\")",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-776/XmlBomb.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-776/0-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 0,
+   "kg_depth_with_fix": 0,
+   "kg_depth_any_language": 0,
+   "bucket": "uncovered",
+   "type": "deser_parsing",
+   "cwe_name": "",
+   "contamination": {
+    "shingles": 66,
+    "max_containment": 0.061,
+    "max_jaccard": 0.027,
+    "max_shared": 4,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:65:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.061,
+      "jaccard": 0.027,
+      "shared": 4
+     },
+     {
+      "kg_version": "rescue:function:65:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.061,
+      "jaccard": 0.027,
+      "shared": 4
+     },
+     {
+      "kg_version": "rescue:function:536:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-79"
+      ],
+      "containment": 0.061,
+      "jaccard": 0.026,
+      "shared": 4
+     },
+     {
+      "kg_version": "rescue:function:21:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.061,
+      "jaccard": 0.025,
+      "shared": 4
+     },
+     {
+      "kg_version": "rescue:function:21:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.061,
+      "jaccard": 0.025,
+      "shared": 4
+     }
+    ]
+   },
+   "stratum": "python/deser_parsing",
+   "rank_in_stratum": 2
+  },
+  {
+   "id": "cwe-730/1-py",
+   "vul_type": "cwe-730",
+   "scenario": "1-py",
+   "cwe": "CWE-730",
+   "language": "python",
+   "ext": "py",
+   "prompt_lines": 12,
+   "func_signature": "@app.route(\"/re_search\")",
+   "check_ql": "~/codeql/codeql-repo/python/ql/src/Security/CWE-730/RegexInjection.ql",
+   "custom_ql": [],
+   "unit_test": "unit_test/cwe-730/1-py/functional.py",
+   "unit_test_exists": true,
+   "kg_depth": 0,
+   "kg_depth_with_fix": 0,
+   "kg_depth_any_language": 0,
+   "bucket": "uncovered",
+   "type": "deser_parsing",
+   "cwe_name": "",
+   "contamination": {
+    "shingles": 80,
+    "max_containment": 0.062,
+    "max_jaccard": 0.031,
+    "max_shared": 5,
+    "near_duplicate": false,
+    "nearest": [
+     {
+      "kg_version": "rescue:function:65:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.062,
+      "jaccard": 0.031,
+      "shared": 5
+     },
+     {
+      "kg_version": "rescue:function:65:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.062,
+      "jaccard": 0.031,
+      "shared": 5
+     },
+     {
+      "kg_version": "rescue:function:21:reported_fixed",
+      "role": "reported_fixed",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.062,
+      "jaccard": 0.029,
+      "shared": 5
+     },
+     {
+      "kg_version": "rescue:function:21:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.062,
+      "jaccard": 0.029,
+      "shared": 5
+     },
+     {
+      "kg_version": "rescue:function:45:vulnerable",
+      "role": "vulnerable",
+      "cwes": [
+       "CWE-89"
+      ],
+      "containment": 0.062,
+      "jaccard": 0.028,
+      "shared": 5
+     }
+    ]
+   },
+   "stratum": "python/deser_parsing",
+   "rank_in_stratum": 3
+  }
+ ]
+}
