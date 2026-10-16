@@ -14,7 +14,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from retrieval.api import retrieve as kg_retrieve
-from retrieval.db import get_driver
+from retrieval.graph import load_graph
 from retrieval.search import Embedder
 
 from .analyze import build_context, fmea_prompt
@@ -39,16 +39,13 @@ def main() -> None:
     task = Path(args.task[1:]).read_text() if args.task.startswith("@") else args.task
     files = {p: Path(p).read_text() for p in args.file}
 
-    driver, embedder = get_driver(), Embedder()
-    retrieve = lambda q, lang, apis: kg_retrieve(driver, embedder, q, lang, apis)
-    try:
-        if args.context_only:
-            knowledge = gather(task, args.language, retrieve, args.api, args.top_k)
-            print(fmea_prompt(build_context(task, args.language, knowledge, files)))
-            return
-        analysis = run(task, args.language, OpenAILLM(), retrieve, args.api, args.top_k, files)
-    finally:
-        driver.close()
+    graph, embedder = load_graph(), Embedder()
+    retrieve = lambda q, lang, apis: kg_retrieve(graph, embedder, q, lang, apis)
+    if args.context_only:
+        knowledge = gather(task, args.language, retrieve, args.api, args.top_k)
+        print(fmea_prompt(build_context(task, args.language, knowledge, files)))
+        return
+    analysis = run(task, args.language, OpenAILLM(), retrieve, args.api, args.top_k, files)
 
     if args.out:
         Path(args.out).write_text(render_problem_statement(task, analysis))

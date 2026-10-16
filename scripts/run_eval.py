@@ -123,7 +123,7 @@ def strip_hit(h) -> dict:
     return d
 
 
-def make_retrieve(driver, embedder, embed_lock, summary: str, gold: str, log: list):
+def make_retrieve(graph, embedder, embed_lock, summary: str, gold: str, log: list):
     from retrieval.api import retrieve as kg_retrieve
 
     class LockedEmbedder:  # the sentence-transformer is shared across worker threads
@@ -132,7 +132,7 @@ def make_retrieve(driver, embedder, embed_lock, summary: str, gold: str, log: li
                 return embedder.encode(text)
 
     def retrieve(query: str, language: str, apis: list[str]):
-        hits, cands = kg_retrieve(driver, LockedEmbedder(), summary, language, apis)
+        hits, cands = kg_retrieve(graph, LockedEmbedder(), summary, language, apis)
         ranked = [c.cwe for c in cands]
         log.append({"query_used": summary, "harness_query_head": query[:300], "language": language, "apis": apis,
                     "gold": gold, "gold_rank": ranked.index(gold) + 1 if gold in ranked else None,
@@ -213,7 +213,7 @@ def run_one(out: Path, s: dict, arm: str, sample: int, ctx: dict) -> None:
         else:
             llm = RecordingLLM(OpenAILLM(MODEL), d / "llm_calls.jsonl")
             summary = llm.chat(SUMMARY_SYSTEM, SUMMARY_PROMPT.format(code=s["prompt"]), stage="summary").strip()
-            retrieve = make_retrieve(ctx["driver"], ctx["embedder"], ctx["embed_lock"], summary, s["gold"], rlog)
+            retrieve = make_retrieve(ctx["graph"], ctx["embedder"], ctx["embed_lock"], summary, s["gold"], rlog)
             res = solve(task, s["language"], workdir=work, model_name=MODEL, harness=True,
                         version=2 if arm == "v2" else 1, llm=llm, retrieve=retrieve, top_k=TOP_K,
                         step_limit=STEP_LIMIT, cost_limit=COST_LIMIT, trajectory=d / "trajectory.json",
@@ -286,9 +286,7 @@ def cmd_run(args) -> None:
     from dotenv import load_dotenv
 
     load_dotenv(ROOT / ".env")
-    import logging
-    logging.getLogger("neo4j.notifications").setLevel(logging.ERROR)  # vector-index deprecation notice on every query
-    from retrieval.db import get_driver
+    from retrieval.graph import load_graph
     from retrieval.search import Embedder
 
     out = args.out
@@ -299,16 +297,12 @@ def cmd_run(args) -> None:
            "samples": args.samples, "scenarios": [s["id"] for s in scenarios], **check_freeze()}
     (out / "config.json").write_text(json.dumps(cfg, indent=1))
 
-    driver = get_driver()
-    ctx = {"driver": driver, "embedder": Embedder(), "embed_lock": threading.Lock()}
+    ctx = {"graph": load_graph(), "embedder": Embedder(), "embed_lock": threading.Lock()}
     ctx["embedder"].encode("warm up")
     units = [(s, arm, n) for s in scenarios for n in range(args.samples) for arm in ARMS]  # interleaved by scenario
-    try:
-        with ThreadPoolExecutor(args.workers) as pool:
-            for f in [pool.submit(run_one, out, s, arm, n, ctx) for s, arm, n in units]:
-                f.result()
-    finally:
-        driver.close()
+    with ThreadPoolExecutor(args.workers) as pool:
+        for f in [pool.submit(run_one, out, s, arm, n, ctx) for s, arm, n in units]:
+            f.result()
 
 
 # ---------------------------------------------------------------- score

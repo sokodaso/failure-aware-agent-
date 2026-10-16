@@ -97,25 +97,21 @@ def main() -> None:
     args = ap.parse_args()
 
     task = Path(args.task[1:]).read_text() if args.task.startswith("@") else args.task
-    llm = retrieve = driver = None
+    llm = retrieve = None
     if not args.no_harness:
         from retrieval.api import retrieve as kg_retrieve
-        from retrieval.db import get_driver
+        from retrieval.graph import load_graph
         from retrieval.search import Embedder
 
         from .llm import OpenAILLM
 
-        driver, embedder = get_driver(), Embedder()
-        retrieve = lambda q, lang, apis: kg_retrieve(driver, embedder, q, lang, apis)  # noqa: E731
+        graph, embedder = load_graph(), Embedder()
+        retrieve = lambda q, lang, apis: kg_retrieve(graph, embedder, q, lang, apis)  # noqa: E731
         llm = OpenAILLM()
-    try:
-        res = solve(task, args.language, workdir=args.workdir, model_name=args.model, harness=not args.no_harness, version=args.harness_version,
-                    llm=llm, retrieve=retrieve, apis=args.api, top_k=args.top_k, step_limit=args.step_limit,
-                    cost_limit=args.cost_limit, trajectory=args.trajectory, problem_out=args.problem_out,
-                    sandbox=not args.no_sandbox)
-    finally:
-        if driver:
-            driver.close()
+    res = solve(task, args.language, workdir=args.workdir, model_name=args.model, harness=not args.no_harness,
+                version=args.harness_version, llm=llm, retrieve=retrieve, apis=args.api, top_k=args.top_k,
+                step_limit=args.step_limit, cost_limit=args.cost_limit, trajectory=args.trajectory,
+                problem_out=args.problem_out, sandbox=not args.no_sandbox)
 
     print(json.dumps({"exit_status": res.exit_status, "cost": res.cost, "n_calls": res.n_calls,
                       "submission": res.submission, "notes": res.notes}, indent=2))

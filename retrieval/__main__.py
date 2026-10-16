@@ -5,7 +5,7 @@ import json
 from dataclasses import asdict
 
 from .api import retrieve
-from .db import get_driver
+from .graph import load_graph
 from .search import Embedder
 
 
@@ -18,11 +18,7 @@ def main() -> None:
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args()
 
-    driver = get_driver()
-    try:
-        hits, cands = retrieve(driver, Embedder(), args.query, args.language, args.api, args.k)
-    finally:
-        driver.close()
+    hits, cands = retrieve(load_graph(), Embedder(), args.query, args.language, args.api, args.k)
 
     if args.json:
         print(json.dumps({"hits": [asdict(h) for h in hits], "cwes": [asdict(c) for c in cands]}, indent=2))
