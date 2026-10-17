@@ -1,13 +1,9 @@
 """Task -> retrieval -> the knowledge the generator is shown."""
 
-from typing import Callable
-
-from retrieval.models import CweCandidate, Hit
+from retrieval.common.base import Probe, Retriever
+from retrieval.common.models import CweCandidate
 
 from .models import Knowledge
-
-# (functionality query, language, expected apis) -> (hits, ranked CWE candidates)
-RetrieveFn = Callable[[str, str, list[str]], tuple[list[Hit], list[CweCandidate]]]
 
 
 def to_knowledge(candidates: list[CweCandidate]) -> list[Knowledge]:
@@ -22,9 +18,7 @@ def to_knowledge(candidates: list[CweCandidate]) -> list[Knowledge]:
     return out
 
 
-def gather(task: str, language: str, retrieve: RetrieveFn, apis: list[str] | None = None,
-           top_k: int = 3) -> list[Knowledge]:
-    """Use the task text as the functionality query; keep the top_k CWEs."""
-    _, candidates = retrieve(task, language, apis or [])
-    return to_knowledge(candidates)[:top_k]
+def gather(retriever: Retriever, probe: Probe, top_k: int = 3) -> list[Knowledge]:
+    """Ask the retriever about the probe; keep the top_k CWEs."""
+    return to_knowledge(retriever.retrieve(probe).candidates)[:top_k]
 

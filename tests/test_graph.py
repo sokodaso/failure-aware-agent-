@@ -1,7 +1,8 @@
 import math
 
-from retrieval.api import retrieve
-from retrieval.graph import Graph
+from retrieval.common.base import Probe
+from retrieval.common.graph import Graph
+from retrieval.fagent.retriever import FagentRetriever, retrieve
 
 
 def node(label, id, **props):
@@ -66,3 +67,22 @@ def test_retrieve_walks_versions_and_attaches_context():
     assert [c.cwe for c in cands] == ["CWE-22"]  # the reported_fixed version is not evidence
     assert cands[0].guidelines == ["validate paths"] and cands[0].attack_patterns == ["Path Traversal"]
     assert cands[0].name == "Path Traversal"
+
+
+def test_fagent_retriever_queries_with_the_summary_and_uses_apis_only_when_asked():
+    class Spy(FakeEmbedder):
+        def __init__(self):
+            self.queries = []
+
+        def encode(self, text):
+            self.queries.append(text)
+            return super().encode(text)
+
+    spy = Spy()
+    probe = Probe("long task text", "python", summary="extract a tar archive", draft="d", apis=["tarfile.open"])
+    off = FagentRetriever(tiny(), spy).retrieve(probe)
+    on = FagentRetriever(tiny(), spy, use_apis=True).retrieve(probe)
+    assert spy.queries == ["extract a tar archive"] * 2
+    assert off.trace["apis_used"] == [] and on.trace["apis_used"] == ["tarfile.open"]
+    assert on.candidates[0].score > off.candidates[0].score  # API overlap is a bonus on top of similarity
+    assert FagentRetriever(tiny(), spy).retrieve(Probe("only the task", "python")) and spy.queries[-1] == "only the task"

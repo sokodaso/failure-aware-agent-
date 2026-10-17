@@ -13,9 +13,9 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
-from retrieval.api import retrieve as kg_retrieve
-from retrieval.graph import load_graph
-from retrieval.search import Embedder
+from retrieval.common.base import Probe
+from retrieval.common.graph import load_graph
+from retrieval.fagent.retriever import FagentRetriever
 
 from .analyze import build_context, fmea_prompt
 from .knowledge import gather
@@ -39,13 +39,12 @@ def main() -> None:
     task = Path(args.task[1:]).read_text() if args.task.startswith("@") else args.task
     files = {p: Path(p).read_text() for p in args.file}
 
-    graph, embedder = load_graph(), Embedder()
-    retrieve = lambda q, lang, apis: kg_retrieve(graph, embedder, q, lang, apis)
+    retriever = FagentRetriever(load_graph(), use_apis=bool(args.api))
     if args.context_only:
-        knowledge = gather(task, args.language, retrieve, args.api, args.top_k)
+        knowledge = gather(retriever, Probe(task, args.language, apis=args.api), args.top_k)
         print(fmea_prompt(build_context(task, args.language, knowledge, files)))
         return
-    analysis = run(task, args.language, OpenAILLM(), retrieve, args.api, args.top_k, files)
+    analysis = run(task, args.language, OpenAILLM(), retriever, args.api, args.top_k, files)
 
     if args.out:
         Path(args.out).write_text(render_problem_statement(task, analysis))

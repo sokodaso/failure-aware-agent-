@@ -13,7 +13,7 @@ from pathlib import Path
 
 import numpy as np
 
-GRAPH_PATH = Path(__file__).parent.parent / "data" / "final_kg" / "graph.json"
+GRAPH_PATH = Path(__file__).parent.parent.parent / "data" / "final_kg" / "graph.json"
 
 
 class Graph:

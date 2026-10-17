@@ -4,9 +4,9 @@ import argparse
 import json
 from dataclasses import asdict
 
-from .api import retrieve
-from .graph import load_graph
-from .search import Embedder
+from .common.base import Probe
+from .common.graph import load_graph
+from .fagent.retriever import FagentRetriever
 
 
 def main() -> None:
@@ -18,7 +18,9 @@ def main() -> None:
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args()
 
-    hits, cands = retrieve(load_graph(), Embedder(), args.query, args.language, args.api, args.k)
+    retriever = FagentRetriever(load_graph(), use_apis=bool(args.api), k=args.k)
+    result = retriever.retrieve(Probe(args.query, args.language or "", apis=args.api))
+    hits, cands = result.trace["hits"], result.candidates
 
     if args.json:
         print(json.dumps({"hits": [asdict(h) for h in hits], "cwes": [asdict(c) for c in cands]}, indent=2))

@@ -4,7 +4,8 @@ from harness.analyze import MAX_NODES, MAX_PATCH, build_context, parse_json, pru
 from harness.knowledge import gather
 from harness.pipeline import run
 from harness.render import render_problem_statement
-from retrieval.models import CweCandidate, Evidence, FixInfo
+from retrieval.common.base import Probe, Retrieval
+from retrieval.common.models import CweCandidate, Evidence, FixInfo
 
 
 def cand(cwe, score, cause=None, patch="x" * 5000):
@@ -13,11 +14,17 @@ def cand(cwe, score, cause=None, patch="x" * 5000):
                         guidelines=[f"guideline {cwe}"])
 
 
-def make_retrieve(log):
-    def retrieve(query, language, apis):
-        log.append((query, language, apis))
-        return [], [cand("CWE-22", 0.8, "no path check"), cand("CWE-78", 0.5), cand("CWE-89", 0.4)]
-    return retrieve
+class FakeRetriever:
+    def __init__(self, log):
+        self.log = log
+
+    def retrieve(self, probe):
+        self.log.append(probe)
+        return Retrieval([cand("CWE-22", 0.8, "no path check"), cand("CWE-78", 0.5), cand("CWE-89", 0.4)])
+
+
+def make_retriever(log):
+    return FakeRetriever(log)
 
 
 def fm(i, sev, lik, level="history", ref="CWE-22", cwe="CWE-22"):
@@ -36,15 +43,16 @@ class ScriptedLLM:
         return self.replies.pop(0)
 
 
-def test_task_text_is_the_retrieval_query_and_top_k_applies():
+def test_probe_goes_to_the_retriever_and_top_k_applies():
     log = []
-    ks = gather("extract uploads", "python", make_retrieve(log), ["tarfile.open"], top_k=2)
-    assert log == [("extract uploads", "python", ["tarfile.open"])]
+    probe = Probe("extract uploads", "python", apis=["tarfile.open"])
+    ks = gather(make_retriever(log), probe, top_k=2)
+    assert log == [probe]
     assert [k.cwe for k in ks] == ["CWE-22", "CWE-78"]
 
 
 def test_context_clips_patches_and_states_empty_knowledge():
-    ks = gather("t", "python", make_retrieve([]))
+    ks = gather(make_retriever([]), Probe("t", "python"))
     ctx = build_context("extract uploads", "python", ks)
     assert "no path check" in ctx and "[truncated]" in ctx and ctx.count("x") <= MAX_PATCH + 50
     assert "no relevant historical failures" in build_context("t", "python", [])
@@ -66,7 +74,7 @@ def test_pipeline_ranks_by_rpn_computes_it_and_limits_fta():
         {"action": "ghost", "failure_ids": ["FM99"]},
     ]}
     llm = ScriptedLLM(json.dumps(fmea), json.dumps(fta))
-    a = run("extract uploaded archives", "python", llm, make_retrieve([]), top_k=2)
+    a = run("extract uploaded archives", "python", llm, make_retriever([]), top_k=2)
     assert [f.id for f in a.failure_modes][:2] == ["FM7", "FM2"] and a.failure_modes[0].rpn == 25
     assert [t.failure_mode_id for t in a.fault_trees] == ["FM7"]
     assert [x.failure_ids for x in a.actions] == [["FM7"]]
@@ -77,14 +85,14 @@ def test_pipeline_ranks_by_rpn_computes_it_and_limits_fta():
 def test_history_claim_without_retrieved_cwe_is_downgraded():
     bad = fm(1, 3, 3, level="history", ref="CWE-999", cwe="CWE-999")
     llm = ScriptedLLM(json.dumps({"failure_modes": [bad]}), json.dumps({"fault_trees": [], "actions": []}))
-    a = run("t", "python", llm, make_retrieve([]))
+    a = run("t", "python", llm, make_retriever([]))
     assert a.failure_modes[0].evidence[0].level == "inference"
     assert any("downgraded" in n for n in a.notes)
 
 
 def test_invalid_json_is_retried_once():
     llm = ScriptedLLM("not json", json.dumps({"failure_modes": []}))
-    assert run("t", "python", llm, make_retrieve([])).failure_modes == []
+    assert run("t", "python", llm, make_retriever([])).failure_modes == []
     assert "not valid JSON" in llm.prompts[1][1]
 
 
@@ -106,7 +114,7 @@ def test_prune_tree_enforces_limits():
 def test_problem_statement_keeps_issue_and_marks_hypotheses():
     fmea = {"failure_modes": [fm(1, 4, 4)]}
     fta = {"fault_trees": [], "actions": [{"action": "validate paths", "failure_ids": ["FM1"], "verification": "t"}]}
-    a = run("t", "python", ScriptedLLM(json.dumps(fmea), json.dumps(fta)), make_retrieve([]))
+    a = run("t", "python", ScriptedLLM(json.dumps(fmea), json.dumps(fta)), make_retriever([]))
     text = render_problem_statement("Fix the extractor", a)
     assert text.startswith("Fix the extractor") and "not established facts" in text and "RPN 16" in text
 
@@ -136,8 +144,9 @@ def test_v2_drafts_first_retrieves_by_task_only_and_analyzes_the_draft():
     fmea = {"failure_modes": [fm(1, 4, 4)], "retrieval_fit": [{"cwe": "CWE-22", "applies": False, "reason": "basename"}]}
     llm = ScriptedLLM("```python\nimport os\nos.remove(p)\n```", json.dumps(fmea),
                       json.dumps({"fault_trees": [], "actions": []}))
-    a, draft = run_v2("delete a file", "python", llm, make_retrieve(log))
-    assert draft == "import os\nos.remove(p)" and log == [("delete a file", "python", [])]  # APIs are context, not the query
+    a, draft = run_v2("delete a file", "python", llm, make_retriever(log))
+    assert draft == "import os\nos.remove(p)"
+    assert log == [Probe("delete a file", "python", draft=draft, apis=["os.remove"])]
     assert "Draft implementation" in llm.prompts[1][1] and "os.remove" in llm.prompts[1][1]
     assert "APIs called by the draft: os.remove" in llm.prompts[1][1]
     assert "retrieval_fit" in llm.prompts[1][1] and "has NOT yet" not in llm.prompts[1][0]
@@ -148,7 +157,7 @@ def test_v2_drafts_first_retrieves_by_task_only_and_analyzes_the_draft():
 
 def test_v1_prompt_is_unchanged_by_v2():
     llm = ScriptedLLM(json.dumps({"failure_modes": []}))
-    run("t", "python", llm, make_retrieve([]))
+    run("t", "python", llm, make_retriever([]))
     assert "has NOT yet" in llm.prompts[0][0] and "Draft implementation" not in llm.prompts[0][1]
 
 
@@ -171,7 +180,7 @@ def test_fta_prompt_requires_attack_and_happy_path_checks():
 def test_v1_retrieval_fit_notes_and_valid_check_reach_the_problem_statement():
     f = dict(fm(1, 4, 4), valid_check="a/b.txt inside dest")
     fmea = {"failure_modes": [f], "retrieval_fit": [{"cwe": "CWE-78", "applies": False, "reason": "no shell"}]}
-    a = run("t", "python", ScriptedLLM(json.dumps(fmea), json.dumps({"fault_trees": [], "actions": []})), make_retrieve([]))
+    a = run("t", "python", ScriptedLLM(json.dumps(fmea), json.dumps({"fault_trees": [], "actions": []})), make_retriever([]))
     assert a.failure_modes[0].valid_check == "a/b.txt inside dest"
     text = render_problem_statement("t", a)
     assert "Control: resolve and check prefix" in text and "Must still accept: a/b.txt inside dest" in text

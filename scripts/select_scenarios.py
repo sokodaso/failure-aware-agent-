@@ -23,8 +23,8 @@ import re
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from retrieval.db import get_driver
-from retrieval.lang import compatible_languages
+from retrieval.common.graph import load_graph
+from retrieval.common.lang import compatible_languages
 
 SEED = 20261006
 MIN_DEPTH = 5
@@ -83,18 +83,18 @@ def load_scenarios(root: Path) -> list[dict]:
     return out
 
 
-def kg_profile(driver) -> tuple[dict, dict, list[dict]]:
+def kg_profile(graph) -> tuple[dict, dict, list[dict]]:
     """depth[(cwe, kg_language)] = (versions, versions with a fix pair); names; all code with labels."""
-    depth = {(r["cwe"], r["lang"]): (r["n"], r["with_fix"]) for r in driver.execute_query(
-        """MATCH (v:FunctionVersion)-[:EXHIBITS_WEAKNESS]->(c:CWE)
-           RETURN c.id AS cwe, v.language AS lang, count(DISTINCT v) AS n,
-                  count(DISTINCT CASE WHEN EXISTS { (v)-[:FIXES]-() } THEN v END) AS with_fix""").records}
-    names = {r["id"]: r["name"] for r in driver.execute_query(
-        "MATCH (c:CWE) RETURN c.id AS id, coalesce(c.name, '') AS name").records}
-    code = [dict(r) for r in driver.execute_query(
-        """MATCH (v:FunctionVersion)-[:HAS_CODE]->(a:CodeArtifact) WHERE a.code IS NOT NULL
-           RETURN v.id AS id, v.language AS language, v.role AS role, a.code AS code,
-                  [(v)-[:EXHIBITS_WEAKNESS]->(c:CWE) | c.id] AS cwes""").records]
+    count: dict = defaultdict(lambda: [0, 0])
+    for vid, cwes in graph.exhibits.items():
+        lang = graph.versions[vid].get("language")
+        for cwe in set(cwes):
+            count[(cwe, lang)][0] += 1
+            count[(cwe, lang)][1] += vid in graph.fixes
+    depth = {k: tuple(v) for k, v in count.items()}
+    names = {i: p.get("name") or "" for i, p in graph.cwes.items()}
+    code = [{"id": vid, "language": graph.versions[vid].get("language"), "role": graph.versions[vid].get("role"),
+             "code": c, "cwes": list(graph.exhibits[vid])} for vid, c in graph.code_of.items() if c is not None]
     return depth, names, code
 
 
@@ -204,11 +204,7 @@ def main() -> None:
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
 
-    driver = get_driver()
-    try:
-        depth, names, kg_code = kg_profile(driver)
-    finally:
-        driver.close()
+    depth, names, kg_code = kg_profile(load_graph())
     index = [shingles(k["code"]) for k in kg_code]
 
     scenarios = load_scenarios(args.codeguard)

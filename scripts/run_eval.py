@@ -32,7 +32,7 @@ import threading
 import time
 import traceback
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -123,24 +123,32 @@ def strip_hit(h) -> dict:
     return d
 
 
-def make_retrieve(graph, embedder, embed_lock, summary: str, gold: str, log: list):
-    from retrieval.api import retrieve as kg_retrieve
+class LoggingRetriever:
+    """Searches with the LLM summary of the scenario prompt (the recall-experiment query) instead of the harness's
+    task text, and records what came back."""
 
-    class LockedEmbedder:  # the sentence-transformer is shared across worker threads
-        def encode(self, text):
-            with embed_lock:
-                return embedder.encode(text)
+    def __init__(self, inner, summary: str, gold: str, log: list):
+        self.inner, self.summary, self.gold, self.log = inner, summary, gold, log
 
-    def retrieve(query: str, language: str, apis: list[str]):
-        hits, cands = kg_retrieve(graph, LockedEmbedder(), summary, language, apis)
-        ranked = [c.cwe for c in cands]
-        log.append({"query_used": summary, "harness_query_head": query[:300], "language": language, "apis": apis,
-                    "gold": gold, "gold_rank": ranked.index(gold) + 1 if gold in ranked else None,
-                    "ranked_cwes": ranked, "kept_top_k": ranked[:TOP_K],
-                    "candidates": [asdict(c) for c in cands], "hits": [strip_hit(h) for h in hits]})
-        return hits, cands
+    def retrieve(self, probe):
+        result = self.inner.retrieve(replace(probe, summary=self.summary))
+        ranked = [c.cwe for c in result.candidates]
+        self.log.append({"query_used": self.summary, "harness_query_head": probe.task[:300], "language": probe.language,
+                         "apis": result.trace.get("apis_used", []), "gold": self.gold,
+                         "gold_rank": ranked.index(self.gold) + 1 if self.gold in ranked else None,
+                         "ranked_cwes": ranked, "kept_top_k": ranked[:TOP_K],
+                         "candidates": [asdict(c) for c in result.candidates],
+                         "hits": [strip_hit(h) for h in result.trace.get("hits", [])]})
+        return result
 
-    return retrieve
+
+class LockedEmbedder:  # the sentence-transformer is shared across worker threads
+    def __init__(self, embedder, lock):
+        self.embedder, self.lock = embedder, lock
+
+    def encode(self, text):
+        with self.lock:
+            return self.embedder.encode(text)
 
 
 def lines_kept(prompt: str, code: str) -> float:
@@ -186,6 +194,7 @@ def run_one(out: Path, s: dict, arm: str, sample: int, ctx: dict) -> None:
     from harness.analyze import parse_json
     from harness.draft import draft_code
     from harness.llm import OpenAILLM
+    from retrieval.fagent.retriever import FagentRetriever
 
     num = f"{sample:02d}"
     d = out / "logs" / s["id"] / arm / num
@@ -213,9 +222,10 @@ def run_one(out: Path, s: dict, arm: str, sample: int, ctx: dict) -> None:
         else:
             llm = RecordingLLM(OpenAILLM(MODEL), d / "llm_calls.jsonl")
             summary = llm.chat(SUMMARY_SYSTEM, SUMMARY_PROMPT.format(code=s["prompt"]), stage="summary").strip()
-            retrieve = make_retrieve(ctx["graph"], ctx["embedder"], ctx["embed_lock"], summary, s["gold"], rlog)
+            inner = FagentRetriever(ctx["graph"], LockedEmbedder(ctx["embedder"], ctx["embed_lock"]))
+            retriever = LoggingRetriever(inner, summary, s["gold"], rlog)
             res = solve(task, s["language"], workdir=work, model_name=MODEL, harness=True,
-                        version=2 if arm == "v2" else 1, llm=llm, retrieve=retrieve, top_k=TOP_K,
+                        version=2 if arm == "v2" else 1, llm=llm, retriever=retriever, top_k=TOP_K,
                         step_limit=STEP_LIMIT, cost_limit=COST_LIMIT, trajectory=d / "trajectory.json",
                         problem_out=d / "problem.md")
             rec["summary"] = summary
@@ -286,8 +296,8 @@ def cmd_run(args) -> None:
     from dotenv import load_dotenv
 
     load_dotenv(ROOT / ".env")
-    from retrieval.graph import load_graph
-    from retrieval.search import Embedder
+    from retrieval.common.embed import Embedder
+    from retrieval.common.graph import load_graph
 
     out = args.out
     out.mkdir(parents=True, exist_ok=True)
@@ -297,7 +307,8 @@ def cmd_run(args) -> None:
            "samples": args.samples, "scenarios": [s["id"] for s in scenarios], **check_freeze()}
     (out / "config.json").write_text(json.dumps(cfg, indent=1))
 
-    ctx = {"graph": load_graph(), "embedder": Embedder(), "embed_lock": threading.Lock()}
+    graph = load_graph()
+    ctx = {"graph": graph, "embedder": Embedder(graph.embedding_model), "embed_lock": threading.Lock()}
     ctx["embedder"].encode("warm up")
     units = [(s, arm, n) for s in scenarios for n in range(args.samples) for arm in ARMS]  # interleaved by scenario
     with ThreadPoolExecutor(args.workers) as pool:

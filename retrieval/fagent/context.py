@@ -1,7 +1,7 @@
 """Attach CWE descriptions, mitigating guidelines and CAPEC attack patterns to candidates."""
 
-from .graph import Graph
-from .models import CweCandidate
+from ..common.graph import Graph
+from ..common.models import CweCandidate
 
 
 def attach_cwe_context(graph: Graph, candidates: list[CweCandidate]) -> None:

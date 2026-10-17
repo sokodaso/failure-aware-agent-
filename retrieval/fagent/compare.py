@@ -16,7 +16,7 @@ API overlap is a bonus on top of functionality similarity, never a gate.
 import re
 from collections import defaultdict
 
-from .models import CweCandidate, Evidence, Hit, Version
+from ..common.models import CweCandidate, Evidence, Hit, Version
 
 EXACT_MATCH = 1.0
 LOOSE_MATCH = 0.5

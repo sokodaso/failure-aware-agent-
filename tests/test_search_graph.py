@@ -2,8 +2,9 @@
 
 import pytest
 
-from retrieval.graph import load_graph
-from retrieval.search import Embedder, search_functionality
+from retrieval.common.embed import Embedder
+from retrieval.common.graph import load_graph
+from retrieval.fagent.search import search_functionality
 
 
 @pytest.fixture(scope="module")
@@ -13,7 +14,7 @@ def graph():
 
 @pytest.fixture(scope="module")
 def embedder():
-    return Embedder()
+    return Embedder(load_graph().embedding_model)
 
 
 def test_python_results_are_python_and_sorted(graph, embedder):

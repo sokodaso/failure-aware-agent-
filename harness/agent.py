@@ -42,7 +42,7 @@ class SolveResult:
 
 
 def solve(task: str, language: str = "python", *, workdir: str | Path, model=None, model_name: str | None = None,
-          harness: bool = True, version: int = 1, llm: LLM | None = None, retrieve=None, apis: list[str] | None = None,
+          harness: bool = True, version: int = 1, llm: LLM | None = None, retriever=None, apis: list[str] | None = None,
           top_k: int = 3, files: dict[str, str] | None = None, step_limit: int = 0, cost_limit: float = 3.0,
           trajectory: Path | None = None, problem_out: Path | None = None, sandbox: bool = True,
           config_path: Path = DEFAULT_CONFIG) -> SolveResult:
@@ -52,13 +52,13 @@ def solve(task: str, language: str = "python", *, workdir: str | Path, model=Non
 
     problem, analysis = task, None
     if harness:
-        if llm is None or retrieve is None:
-            raise ValueError("harness=True needs llm and retrieve")
+        if llm is None or retriever is None:
+            raise ValueError("harness=True needs llm and retriever")
         if version == 2:
-            analysis, draft = run_v2(task, language, llm, retrieve, top_k, files)
+            analysis, draft = run_v2(task, language, llm, retriever, top_k, files)
             problem = render_problem_statement(task, analysis, draft)
         else:
-            analysis = run(task, language, llm, retrieve, apis, top_k, files)
+            analysis = run(task, language, llm, retriever, apis, top_k, files)
             problem = render_problem_statement(task, analysis)
     if problem_out:
         problem_out.write_text(problem)
@@ -97,19 +97,17 @@ def main() -> None:
     args = ap.parse_args()
 
     task = Path(args.task[1:]).read_text() if args.task.startswith("@") else args.task
-    llm = retrieve = None
+    llm = retriever = None
     if not args.no_harness:
-        from retrieval.api import retrieve as kg_retrieve
-        from retrieval.graph import load_graph
-        from retrieval.search import Embedder
+        from retrieval.common.graph import load_graph
+        from retrieval.fagent.retriever import FagentRetriever
 
         from .llm import OpenAILLM
 
-        graph, embedder = load_graph(), Embedder()
-        retrieve = lambda q, lang, apis: kg_retrieve(graph, embedder, q, lang, apis)  # noqa: E731
+        retriever = FagentRetriever(load_graph(), use_apis=bool(args.api))
         llm = OpenAILLM()
     res = solve(task, args.language, workdir=args.workdir, model_name=args.model, harness=not args.no_harness,
-                version=args.harness_version, llm=llm, retrieve=retrieve, apis=args.api, top_k=args.top_k,
+                version=args.harness_version, llm=llm, retriever=retriever, apis=args.api, top_k=args.top_k,
                 step_limit=args.step_limit, cost_limit=args.cost_limit, trajectory=args.trajectory,
                 problem_out=args.problem_out, sandbox=not args.no_sandbox)
 

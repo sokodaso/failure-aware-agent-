@@ -1,29 +1,14 @@
 """Functionality retrieval: embed the query, nearest-neighbour search over Functionality nodes, then walk to
 the function versions that implement each hit (with CWEs, code, APIs called and FIXES info)."""
 
-from kg_pipeline.build_final_graph import EMBEDDING_MODEL_NAME
-
-from .graph import Graph
-from .lang import compatible_languages
-from .models import FixInfo, Hit, Version
+from ..common.embed import Embedder
+from ..common.graph import Graph
+from ..common.lang import compatible_languages
+from ..common.models import FixInfo, Hit, Version
 
 # The language filter applies to function versions, after the vector search, so fetch extra
 # neighbours and keep the first k that still have a matching version.
 OVERFETCH = 5
-
-
-class Embedder:
-    """Query-side embedding. Must be the model that embedded the Functionality nodes."""
-
-    def __init__(self, model_name: str = EMBEDDING_MODEL_NAME):
-        self.model_name = model_name
-        self._model = None
-
-    def encode(self, text: str) -> list[float]:
-        if self._model is None:
-            from sentence_transformers import SentenceTransformer
-            self._model = SentenceTransformer(self.model_name)
-        return [float(x) for x in self._model.encode(text, normalize_embeddings=True)]
 
 
 def search_functionality(

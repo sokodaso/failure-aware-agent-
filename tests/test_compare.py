@@ -1,6 +1,6 @@
-from retrieval.compare import API_WEIGHT, annotate_api_overlap, rank_cwes
-from retrieval.lang import compatible_languages
-from retrieval.models import FixInfo, Hit, Version
+from retrieval.fagent.compare import API_WEIGHT, annotate_api_overlap, rank_cwes
+from retrieval.common.lang import compatible_languages
+from retrieval.common.models import FixInfo, Hit, Version
 
 
 def ver(id, role="vulnerable", cwes=(), apis=(), fix=None):
